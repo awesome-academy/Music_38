@@ -2,6 +2,7 @@ package com.framgia.vhlee.musicplus.service;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
@@ -13,6 +14,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.framgia.vhlee.musicplus.R;
@@ -27,15 +29,24 @@ import java.util.List;
 public class MyService extends Service implements MediaPlayerManager.OnLoadingTrackListener, PlayMusicInterface {
     private static final int WHAT_CREATE = 1;
     private static final int WHAT_CHANGE_SONG = 2;
+    private static final int WHAT_REQUEST_START = 3;
+    private static final int WHAT_REQUEST_PAUSE = 4;
     private static final String WORKER_THREAD_NAME = "ServiceStartArguments";
     private static final int NOTIFI_ID = 9596;
+    private static final int VALUE_NEXT_SONG = 4;
+    private static final int VALUE_PREVIOUS_SONG = 5;
+    private static final int VALUE_PLAY_SONG = 6;
+    public static final String EXTRA_REQUEST_CODE = "REQUEST_CODE";
     private final IBinder mBinder = new LocalBinder();
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-    private Handler mUIHandler;
+    private static Handler mUIHandler;
     private MediaPlayerManager mMediaPlayerManager;
     private RemoteViews mNotificationLayout;
     private NotificationCompat.Builder mBuilder;
+    private PendingIntent mNextPendingIntent;
+    private PendingIntent mPreviousPendingIntent;
+    private PendingIntent mPlayPendingIntent;
 
     @Override
     public void onCreate() {
@@ -55,6 +66,24 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            int request = intent.getIntExtra(EXTRA_REQUEST_CODE, 0);
+            switch (request) {
+                case VALUE_NEXT_SONG:
+                    requestChangeSong(Constants.NEXT_SONG);
+                    break;
+                case VALUE_PREVIOUS_SONG:
+                    requestChangeSong(Constants.PREVIOUS_SONG);
+                    break;
+                case VALUE_PLAY_SONG:
+                    if (isPlaying()) {
+                        requestPause();
+                    } else {
+                        requestStart();
+                    }
+                    break;
+            }
+        }
         return START_STICKY;
     }
 
@@ -83,7 +112,14 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     @Override
     public void onLoadingSuccess() {
+        updateNotification();
         mUIHandler.sendEmptyMessage(MediaRequest.SUCCESS);
+    }
+
+    @Override
+    public void onTrackPaused() {
+        updateNotification();
+        mUIHandler.sendEmptyMessage(MediaRequest.PAUSED);
     }
 
     @Override
@@ -148,6 +184,9 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
         message.what = WHAT_CREATE;
         message.arg1 = index;
         mServiceHandler.sendMessage(message);
+        createNextPendingIntent();
+        createPreviousPendingIntent();
+        createPlayPendingIntent();
     }
 
     public void requestChangeSong(int index) {
@@ -157,7 +196,15 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
         mServiceHandler.sendMessage(message);
     }
 
-    public void setUIHandler(Handler uiHandler) {
+    public void requestStart() {
+        mServiceHandler.sendEmptyMessage(WHAT_REQUEST_START);
+    }
+
+    public void requestPause() {
+        mServiceHandler.sendEmptyMessage(WHAT_REQUEST_PAUSE);
+    }
+
+    public static void setUIHandler(Handler uiHandler) {
         mUIHandler = uiHandler;
     }
 
@@ -182,6 +229,7 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
         mNotificationLayout = new RemoteViews(getPackageName(), resourceLayout);
         mNotificationLayout.setTextViewText(R.id.text_song_name, songName);
         mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_pause_white);
+        mNotificationLayout.setViewVisibility(R.id.image_play, View.INVISIBLE);
     }
 
     private void createMusicNotification() {
@@ -212,14 +260,59 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
             mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_play_button_white);
             mBuilder.setOngoing(true);
         }
+        mNotificationLayout.setViewVisibility(R.id.image_play, View.INVISIBLE);
         mBuilder.setContent(mNotificationLayout);
         startForeground(NOTIFI_ID, mBuilder.build());
+    }
+
+    private void updateNotification() {
+        mNotificationLayout.setViewVisibility(R.id.image_play, View.VISIBLE);
+        if (isPlaying()) {
+            mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_play_button_white);
+            mBuilder.setOngoing(false);
+            mBuilder.setContent(mNotificationLayout);
+            startForeground(NOTIFI_ID, mBuilder.build());
+            stopForeground(false);
+        } else {
+            mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_pause_white);
+            mBuilder.setContent(mNotificationLayout);
+            startForeground(NOTIFI_ID, mBuilder.build());
+        }
+    }
+
+    private void createNextPendingIntent() {
+        Intent nextIntent = new Intent(getApplicationContext(), MyService.class);
+        nextIntent.putExtra(EXTRA_REQUEST_CODE, VALUE_NEXT_SONG);
+        mNextPendingIntent = PendingIntent.getService(getApplicationContext(),
+                VALUE_NEXT_SONG, nextIntent, 0);
+        mNotificationLayout.setOnClickPendingIntent(R.id.image_next, mNextPendingIntent);
+    }
+
+    private void createPreviousPendingIntent() {
+        Intent nextIntent = new Intent(getApplicationContext(), MyService.class);
+        nextIntent.putExtra(EXTRA_REQUEST_CODE, VALUE_PREVIOUS_SONG);
+        mPreviousPendingIntent = PendingIntent.getService(getApplicationContext(),
+                VALUE_PREVIOUS_SONG, nextIntent, 0);
+        mNotificationLayout.setOnClickPendingIntent(R.id.image_previous, mPreviousPendingIntent);
+    }
+
+    private void createPlayPendingIntent() {
+        Intent nextIntent = new Intent(getApplicationContext(), MyService.class);
+        nextIntent.putExtra(EXTRA_REQUEST_CODE, VALUE_PLAY_SONG);
+        mPlayPendingIntent = PendingIntent.getService(getApplicationContext(),
+                VALUE_PLAY_SONG, nextIntent, 0);
+        mNotificationLayout.setOnClickPendingIntent(R.id.image_play, mPlayPendingIntent);
     }
 
     public class LocalBinder extends Binder {
         public MyService getService() {
             return MyService.this;
         }
+    }
+
+    public static Intent getMyServiceIntent(Context context) {
+        Intent intent = new Intent(context, MyService.class);
+        return intent;
     }
 
     private final class ServiceHandler extends Handler {
@@ -235,6 +328,12 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
                     break;
                 case WHAT_CHANGE_SONG:
                     changeSong(msg.arg1);
+                    break;
+                case WHAT_REQUEST_START:
+                    start();
+                    break;
+                case WHAT_REQUEST_PAUSE:
+                    pause();
                     break;
             }
         }

@@ -75,6 +75,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
     @Override
     public void pause() {
         if (mMediaPlayer != null) {
+            mListener.onTrackPaused();
             mMediaPlayer.pause();
         }
     }
@@ -153,5 +154,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
         void onLoadingFail(String message);
 
         void onLoadingSuccess();
+
+        void onTrackPaused();
     }
 }
