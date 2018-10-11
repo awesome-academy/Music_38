@@ -16,7 +16,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;

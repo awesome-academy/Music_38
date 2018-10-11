@@ -131,6 +131,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         requestUpdateUI();
         mIsBoundService = true;
         initLoopImage();
+        initShuffleImage();
     }
 
     @Override
@@ -161,6 +162,9 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.image_play:
                 playSong();
+                break;
+            case R.id.image_shuffle:
+                changeShuffleType();
                 break;
             default:
                 break;
@@ -354,7 +358,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void loadingSuccess() {
-        mSeekBar.setVisibility(View.VISIBLE);
+        mSeekBar.setEnabled(true);
         int duration = mService.getDuration();
         mImagePlay.setVisibility(View.VISIBLE);
         mImagePlay.setImageResource(R.drawable.ic_pause);
@@ -363,7 +367,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void startLoading(int index) {
-        mSeekBar.setVisibility(View.INVISIBLE);
+        mSeekBar.setEnabled(false);
         mImagePlay.setVisibility(View.INVISIBLE);
         Track track = mService.getTracks().get(index);
         mTextArtist.setText(track.getArtist());
@@ -425,5 +429,35 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPositionText.setText(TimeUtil.convertMilisecondToFormatTime(currentPosition));
         mHandler.sendEmptyMessageDelayed(WHAT_UPDATE_FOLLOWING_SERVICE,
                 MESSAGE_UPDATE_DELAY);
+    }
+
+    private void initShuffleImage() {
+        int shuffleType = mService.getMediaPlayerManager().getShuffleType();
+        switch (shuffleType) {
+            case MediaPlayerSetting.ShuffleType.OFF:
+                mShuffleImage.setImageResource(R.drawable.ic_shuffle_none);
+                break;
+            case MediaPlayerSetting.ShuffleType.ON:
+                mShuffleImage.setImageResource(R.drawable.ic_shuffle);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void changeShuffleType() {
+        int shuffleType = mService.getMediaPlayerManager().getShuffleType();
+        switch (shuffleType) {
+            case MediaPlayerSetting.ShuffleType.OFF:
+                mService.getMediaPlayerManager().setShuffleType(MediaPlayerSetting.ShuffleType.ON);
+                initShuffleImage();
+                break;
+            case MediaPlayerSetting.ShuffleType.ON:
+                mService.getMediaPlayerManager().setShuffleType(MediaPlayerSetting.ShuffleType.OFF);
+                initShuffleImage();
+                break;
+            default:
+                break;
+        }
     }
 }
