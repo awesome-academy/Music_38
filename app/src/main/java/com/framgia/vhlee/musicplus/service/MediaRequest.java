@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 @IntDef({
         MediaRequest.LOADING, MediaRequest.SUCCESS,
         MediaRequest.UPDATE_MINI_PLAYER, MediaRequest.FAILURE,
-        MediaRequest.PAUSED
+        MediaRequest.PAUSED, MediaRequest.STOPPED
 })
 public @interface MediaRequest {
     int LOADING = 1;
@@ -18,4 +18,5 @@ public @interface MediaRequest {
     int UPDATE_MINI_PLAYER = 4;
     int FAILURE = 5;
     int PAUSED = 6;
+    int STOPPED = 7;
 }

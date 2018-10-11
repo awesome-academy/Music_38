@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.util.Log;
 
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.ui.adapter.MediaPlayerListener;
@@ -13,7 +12,8 @@ import com.framgia.vhlee.musicplus.util.Constants;
 import java.io.IOException;
 import java.util.List;
 
-public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCompletionListener,
+public class MediaPlayerManager extends MediaPlayerSetting
+        implements PlayMusicInterface, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener {
 
     private static final int NUMBER_1 = 1;
@@ -22,12 +22,14 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
     private MediaPlayer mMediaPlayer;
     private List<Track> mTracks;
     private int mCurrentIndex;
+    private int mStatus;
     private OnLoadingTrackListener mListener;
     private MediaPlayerListener mPlayerListener;
 
     private MediaPlayerManager(Context context, OnLoadingTrackListener listener) {
         mContext = context;
         mListener = listener;
+        mLoopType = LoopType.NONE;
     }
 
     public static MediaPlayerManager getsInstance(Context context,
@@ -44,7 +46,11 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
         Track track = mTracks.get(mCurrentIndex);
         mListener.onStartLoading(index);
         if (mMediaPlayer != null) {
-            mMediaPlayer.release();
+            mMediaPlayer.reset();
+            mStatus = StatusPlayerType.IDLE;
+        } else {
+            mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setOnCompletionListener(this);
         }
         if (!mTracks.isEmpty() && mCurrentIndex >= 0) {
             if (track.isOffline()) initOffline(track);
@@ -54,11 +60,12 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
     }
 
     private void initOnline(Track track) {
-        Uri uri = Uri.parse(track.getStreamUrl());
+        Uri uri = Uri.parse(mTracks.get(mCurrentIndex).getStreamUrl());
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(mContext, uri);
+            mStatus = StatusPlayerType.INITIALIZED;
             prepareAsync();
         } catch (IOException e) {
             mListener.onLoadingFail(e.getMessage());
@@ -75,6 +82,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
     public void prepareAsync() {
         if (mMediaPlayer != null) {
             mMediaPlayer.prepareAsync();
+            mStatus = StatusPlayerType.PREPARING;
             mMediaPlayer.setOnPreparedListener(this);
         }
     }
@@ -82,27 +90,44 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
     @Override
     public void start() {
         if (mMediaPlayer != null) {
-            mListener.onLoadingSuccess();
             mMediaPlayer.start();
+            mStatus = StatusPlayerType.STARTED;
+            mListener.onLoadingSuccess();
         }
     }
 
     @Override
     public void pause() {
         if (mMediaPlayer != null) {
-            mListener.onTrackPaused();
             mMediaPlayer.pause();
+            mStatus = StatusPlayerType.PAUSED;
+            mListener.onTrackPaused();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mStatus = StatusPlayerType.STOPPED;
+            mListener.onTrackStopped();
         }
     }
 
     @Override
     public int getDuration() {
-        return mMediaPlayer != null ? mMediaPlayer.getDuration() : 0;
+        if (mMediaPlayer != null && mStatus != StatusPlayerType.IDLE) {
+            return mMediaPlayer.getDuration();
+        }
+        return 0;
     }
 
     @Override
     public int getCurrrentPosition() {
-        return mMediaPlayer != null ? mMediaPlayer.getCurrentPosition() : 0;
+        if (mMediaPlayer != null && mStatus != StatusPlayerType.IDLE) {
+            return mMediaPlayer.getCurrentPosition();
+        }
+        return 0;
     }
 
     @Override
@@ -142,7 +167,24 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        changeSong(Constants.NEXT_SONG);
+        switch (mLoopType) {
+            case LoopType.NONE:
+                if (mCurrentIndex == mTracks.size() - NUMBER_1
+                        && mStatus != StatusPlayerType.STOPPED) {
+                    stop();
+                } else {
+                    changeSong(Constants.NEXT_SONG);
+                }
+                break;
+            case LoopType.ALL:
+                changeSong(Constants.NEXT_SONG);
+                break;
+            case LoopType.ONE:
+                start();
+                break;
+            default:
+                break;
+        }
     }
 
     public List<Track> getTracks() {
@@ -162,6 +204,15 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
         mPlayerListener = listener;
     }
 
+    public int getStatus() {
+        return mStatus;
+    }
+
+    public MediaPlayerManager setStatus(int status) {
+        this.mStatus = status;
+        return this;
+    }
+
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         start();
@@ -175,5 +226,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
         void onLoadingSuccess();
 
         void onTrackPaused();
+
+        void onTrackStopped();
     }
 }
