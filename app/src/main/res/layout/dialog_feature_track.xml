@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="@dimen/dp_24"
+    android:paddingTop="@dimen/dp_15"
+    android:paddingBottom="@dimen/dp_15">
+
+    <ImageView
+        android:id="@+id/image_track"
+        android:layout_width="@dimen/dp_65"
+        android:layout_height="@dimen/dp_65"
+        android:src="@drawable/banner"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/text_song_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_18"
+        android:paddingTop="@dimen/dp_5"
+        android:singleLine="true"
+        android:text="@string/default_song_name"
+        android:textColor="@color/color_black"
+        android:textSize="@dimen/dp_18"
+        app:layout_constraintEnd_toStartOf="@id/image_previous_song"
+        app:layout_constraintStart_toEndOf="@id/image_track"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_singer_name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_7"
+        android:paddingTop="@dimen/dp_5"
+        android:singleLine="true"
+        android:text="@string/default_singer"
+        android:textSize="@dimen/dp_14"
+        app:layout_constraintBottom_toBottomOf="@id/image_track"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/image_track"
+        app:layout_constraintTop_toBottomOf="@id/text_song_name" />
+
+    <include
+        android:id="@+id/feature_favorite"
+        layout="@layout/favorite_dialog_featue_track"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_track"/>
+
+    <include
+        android:id="@+id/feature_playlist"
+        layout="@layout/playlist_dialog_featue_track"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/feature_favorite"/>
+
+    <include
+        android:id="@+id/feature_download"
+        layout="@layout/download_dialog_featue_track"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/feature_playlist" />
+</android.support.constraint.ConstraintLayout>

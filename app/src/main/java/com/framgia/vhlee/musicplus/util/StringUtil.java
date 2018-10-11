@@ -11,9 +11,11 @@ public class StringUtil {
         return builder.toString();
     }
 
-    public static String getTrackByGenreApi(String genres) {
+    public static String getTrackByGenreApi(String genres, int offset) {
         return StringUtil.append(Constants.ApiConfig.BASE_URL_GENRES, genres,
-                Constants.ApiConfig.CLIENT_ID, BuildConfig.CLIENT_ID);
+                Constants.ApiConfig.CLIENT_ID, BuildConfig.CLIENT_ID,
+                Constants.ApiConfig.PARAMETER_LIMIT, String.valueOf(Constants.Common.LIMIT),
+                Constants.ApiConfig.PARAMETER_OFFSET, String.valueOf(offset));
     }
 
     public static String getTrackDetailApi(int trackId) {

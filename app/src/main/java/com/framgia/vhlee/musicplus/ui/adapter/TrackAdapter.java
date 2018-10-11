@@ -15,7 +15,7 @@ import com.framgia.vhlee.musicplus.data.model.Track;
 import java.util.List;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder> {
-    private static List<Track> mTracks;
+    private List<Track> mTracks;
     private OnClickItemSongListener mListener;
 
     public TrackAdapter(List<Track> tracks, OnClickItemSongListener listener) {
@@ -41,12 +41,14 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         return mTracks != null ? mTracks.size() : 0;
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView mTrackImage;
         private TextView mTrackName;
         private TextView mSingerName;
         private ImageView mFeature;
         private ImageView mAddNowPlaying;
+        private OnClickItemSongListener mListener;
+        private int mPosition;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,22 +65,42 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             Glide.with(itemView.getContext())
                     .load(mTracks.get(position).getArtworkUrl())
                     .into(mTrackImage);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.clickItemSongListener(position);
-                }
-            });
+            mListener = listener;
+            mPosition = position;
+            itemView.setOnClickListener(this);
+            mFeature.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.image_feature:
+                    mListener.showDialodFeatureTrack(mPosition);
+                    break;
+                default:
+                    mListener.clickItemSongListener(mPosition);
+            }
         }
     }
 
     public void updateTracks(List<Track> tracks) {
-        mTracks.clear();
-        mTracks.addAll(tracks);
-        notifyDataSetChanged();
+        if (tracks != null) {
+            mTracks.clear();
+            mTracks.addAll(tracks);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void addTracks(List<Track> tracks) {
+        if (tracks != null) {
+            mTracks.addAll(tracks);
+            notifyDataSetChanged();
+        }
     }
 
     public interface OnClickItemSongListener {
         void clickItemSongListener(int position);
+
+        void showDialodFeatureTrack(int position);
     }
 }

@@ -66,5 +66,6 @@ public final class Constants {
         public static final int WHAT_LOADING_FAIL = 5;
         public static final int NEXT_SONG = 1;
         public static final int PREVIOUS_SONG = -1;
+        public static final int LIMIT = 10;
     }
 }
