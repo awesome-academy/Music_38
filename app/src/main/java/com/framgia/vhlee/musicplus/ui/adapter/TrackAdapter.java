@@ -24,6 +24,8 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
     private OnDragDropListener mDragDropListener;
     private boolean mIsNowPlaying;
     private boolean mIsRecentTracks;
+    private OnClickDeleteListener mDeleteListener;
+    private boolean isFavarite;
 
     public TrackAdapter(OnClickItemSongListener listener) {
         mTracks = new ArrayList<>();
@@ -39,6 +41,13 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         mTracks = tracks;
         mListener = listener;
         mDragDropListener = dragDropListener;
+    }
+
+    public TrackAdapter(List<Track> tracks, OnClickItemSongListener songListener,
+                        OnClickDeleteListener deleteListener) {
+        mTracks = tracks;
+        mDeleteListener = deleteListener;
+        mListener = songListener;
     }
 
     @NonNull
@@ -66,6 +75,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         private TextView mSingerName;
         private ImageView mFeature;
         private ImageView mAddNowPlaying;
+        private ImageView mDeleteFavorite;
         private OnClickItemSongListener mListener;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -75,10 +85,16 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mSingerName = itemView.findViewById(R.id.text_singer_name);
             mFeature = itemView.findViewById(R.id.image_feature);
             mAddNowPlaying = itemView.findViewById(R.id.image_add_now_play);
+            mDeleteFavorite = itemView.findViewById(R.id.image_delete_favorite);
             if (mIsNowPlaying) mAddNowPlaying.setVisibility(View.GONE);
             if (mIsRecentTracks || mIsNowPlaying) {
                 mAddNowPlaying.setVisibility(View.GONE);
                 mFeature.setVisibility(View.GONE);
+            }
+            if (isFavarite) {
+                mAddNowPlaying.setVisibility(View.GONE);
+                mFeature.setVisibility(View.GONE);
+                mDeleteFavorite.setVisibility(View.VISIBLE);
             }
         }
 
@@ -89,6 +105,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mListener = listener;
             itemView.setOnClickListener(this);
             mFeature.setOnClickListener(this);
+            mDeleteFavorite.setOnClickListener(this);
         }
 
         @Override
@@ -96,6 +113,9 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             switch (view.getId()) {
                 case R.id.image_feature:
                     mListener.showDialodFeatureTrack(getAdapterPosition());
+                    break;
+                case R.id.image_delete_favorite:
+                    mDeleteListener.deleteFromFavorite(getAdapterPosition());
                     break;
                 default:
                     mListener.clickItemSongListener(getAdapterPosition());
@@ -142,9 +162,13 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
     }
 
     public void swipe(int position, int direction) {
-        mTracks.remove(position);
-        notifyItemRemoved(position);
-        mDragDropListener.onSwipeViewHolder(mTracks);
+        if (mTracks.size() > Constants.INDEX_UNIT) {
+            mTracks.remove(position);
+            notifyItemRemoved(position);
+            mDragDropListener.onSwipeViewHolder(mTracks);
+            return;
+        }
+        notifyDataSetChanged();
     }
 
     public TrackAdapter setNowPlaying(boolean nowPlaying) {
@@ -157,10 +181,20 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         return this;
     }
 
+    public TrackAdapter setFavarite(boolean favarite) {
+        isFavarite = favarite;
+        return this;
+    }
+
     public interface OnClickItemSongListener {
         void clickItemSongListener(int position);
 
         void showDialodFeatureTrack(int position);
+    }
+
+
+    public interface OnClickDeleteListener {
+        void deleteFromFavorite(int position);
     }
 
     public interface OnDragDropListener {

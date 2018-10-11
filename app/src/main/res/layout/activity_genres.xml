@@ -40,7 +40,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <Button
-            android:id="@+id/button_shuffle"
+            android:id="@+id/button_favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_15"
@@ -59,7 +59,7 @@
             app:layout_constraintBottom_toTopOf="@id/proress_load_more"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button_shuffle">
+            app:layout_constraintTop_toBottomOf="@id/button_favorite">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_list_tracks"

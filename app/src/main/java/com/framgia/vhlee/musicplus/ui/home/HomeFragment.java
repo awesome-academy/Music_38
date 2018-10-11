@@ -1,8 +1,5 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
-import android.app.ActivityOptions;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -10,7 +7,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +21,6 @@ import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.GenreKey;
 import com.framgia.vhlee.musicplus.data.model.GenreName;
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.adapter.GenreAdapter;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
@@ -117,11 +112,13 @@ public class HomeFragment extends Fragment
     }
 
     private void getRecentTrack() {
-        mPreferences = new MySharedPreferences(getActivity());
-        long[] idRecentTracks = mPreferences.getData();
-        for (int i = 0; i < idRecentTracks.length; i++) {
-            String api = StringUtil.initDetailApi(idRecentTracks[i]);
-            mPresenter.loadRecent(api);
+        if (getActivity() != null) {
+            mPreferences = new MySharedPreferences(getActivity());
+            long[] idRecentTracks = mPreferences.getData();
+            for (int i = 0; i < idRecentTracks.length; i++) {
+                String api = StringUtil.initDetailApi(idRecentTracks[i]);
+                mPresenter.loadRecent(api);
+            }
         }
     }
 
@@ -184,8 +181,7 @@ public class HomeFragment extends Fragment
     }
 
     private void initUI(View view) {
-        TrackDataRepository repository = TrackDataRepository.getsInstance();
-        mPresenter = new HomePresenter(this, repository);
+        mPresenter = new HomePresenter(getActivity(), this);
         mImageCover = view.findViewById(R.id.image_cover);
         mImageAvatar = view.findViewById(R.id.image_artwork);
         mTextTitle = view.findViewById(R.id.text_title_highlight);

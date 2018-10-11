@@ -1,18 +1,23 @@
 package com.framgia.vhlee.musicplus.ui.genres;
 
+import android.content.Context;
+
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
 import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 
 import java.util.List;
 
 public class GenresPresenter implements GenresContract.Presenter {
     private GenresContract.View mView;
-    private TrackDataRepository mRepository;
+    private TrackRepository mRepository;
 
-    public GenresPresenter(GenresContract.View view) {
+    public GenresPresenter(Context context, GenresContract.View view) {
         mView = view;
-        mRepository = TrackDataRepository.getsInstance();
+        mRepository = TrackRepository.getsInstance(TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(context));
     }
 
     @Override

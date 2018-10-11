@@ -62,6 +62,8 @@ public class MyMusicFragment extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_music, container, false);
         initUI(view);
+        Intent serviceIntent = MyService.getMyServiceIntent(getActivity());
+        getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
         checkPermission();
         if (mHasPermission) initData();
         return view;
@@ -86,7 +88,7 @@ public class MyMusicFragment extends Fragment
 
     private void setListener() {
         mMiniPlayer = new MiniPlayerClass(getActivity());
-        mPresenter = new MyMusicPresenter(this);
+        mPresenter = new MyMusicPresenter(getActivity(), this);
         mHandler = new MusicHandler();
         mConnection = new MusicServiceConnection();
     }
@@ -119,7 +121,6 @@ public class MyMusicFragment extends Fragment
                     getActivity().startService(serviceIntent);
                 }
             }
-            getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
         }
     }
 

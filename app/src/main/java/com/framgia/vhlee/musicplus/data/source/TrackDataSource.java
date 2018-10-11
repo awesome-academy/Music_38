@@ -14,7 +14,13 @@ public interface TrackDataSource {
     }
 
     interface Local {
-        void loadOffline(Context context, DataCallback<Track> callback);
+        void loadOffline(DataCallback<Track> callback);
+
+        void getFavotiteTracks(DataCallback<Long> callback);
+
+        void addFavariteTrack(Track track, DataCallback<String> callback);
+
+        void deleteFavoriteTrack(Track track, DataCallback<String> callback);
     }
 
     interface Remote extends TrackDataSource {

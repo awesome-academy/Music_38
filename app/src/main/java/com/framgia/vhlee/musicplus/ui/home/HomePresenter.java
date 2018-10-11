@@ -1,18 +1,23 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
+import android.content.Context;
+
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
 import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 
 import java.util.List;
 
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
-    private TrackDataRepository mRepository;
+    private TrackRepository mRepository;
 
-    public HomePresenter(HomeContract.View view, TrackDataRepository repository) {
+    public HomePresenter(Context context, HomeContract.View view) {
         mView = view;
-        mRepository = repository;
+        mRepository = TrackRepository.getsInstance(TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(context));
     }
 
     @Override

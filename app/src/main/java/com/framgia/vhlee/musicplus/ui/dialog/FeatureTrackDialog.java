@@ -14,7 +14,10 @@ import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
 
-public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClickListener {
+import java.util.List;
+
+public class FeatureTrackDialog extends BottomSheetDialog
+        implements View.OnClickListener, FeatureTrackContract.View {
     private Context mContext;
     private View mFavoriteView;
     private View mPlaylistView;
@@ -23,11 +26,14 @@ public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClic
     private TextView mTrackName;
     private TextView mSingerName;
     private Track mTrack;
+    private FeatureTrackContract.Presenter mPresenter;
+
 
     public FeatureTrackDialog(@NonNull Context context, int themeResId, Track track) {
         super(context, themeResId);
         mContext = context;
         mTrack = track;
+        mPresenter = new FeatureTrackPresenter(mContext, this);
     }
 
     @Override
@@ -88,7 +94,16 @@ public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClic
     }
 
     private void addToFavorites() {
-        String favorites = mContext.getResources().getString(R.string.text_favorites);
-        Toast.makeText(mContext, favorites, Toast.LENGTH_SHORT).show();
+        mPresenter.addFavariteTrack(mTrack);
+    }
+
+    @Override
+    public void onFail(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddTracksSuccess(List<String> id) {
+        Toast.makeText(mContext, R.string.text_add_success, Toast.LENGTH_SHORT).show();
     }
 }

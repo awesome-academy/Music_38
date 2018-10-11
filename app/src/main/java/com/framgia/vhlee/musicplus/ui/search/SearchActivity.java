@@ -138,7 +138,7 @@ public class SearchActivity extends LoadMoreAbstract
         mRecyclerView = findViewById(R.id.recycler_search);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mTrackAdapter = new TrackAdapter(this);
-        mPresenter = new SearchPresenter(this);
+        mPresenter = new SearchPresenter(this, this);
         mMiniPlayerClass = new MiniPlayerClass(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setAdapter(mTrackAdapter);

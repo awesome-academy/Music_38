@@ -1,4 +1,4 @@
-package com.framgia.vhlee.musicplus.ui.search;
+package com.framgia.vhlee.musicplus.ui.play;
 
 import android.content.Context;
 
@@ -10,27 +10,27 @@ import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 
 import java.util.List;
 
-public class SearchPresenter implements SearchContract.Presenter {
-    private SearchContract.View mView;
+public class PlayPresenter implements PlayContract.Presenter {
+    private PlayContract.View mView;
     private TrackRepository mRepository;
 
-    public SearchPresenter(Context context, SearchContract.View view) {
+    public PlayPresenter(Context context, PlayContract.View view) {
         mView = view;
         mRepository = TrackRepository.getsInstance(TrackRemoteDataSource.getsInstance(),
                 TrackLocalDataSource.getInstance(context));
     }
 
     @Override
-    public void searchTracks(String api) {
-        mRepository.searchTracks(api, new TrackDataSource.DataCallback<Track>() {
+    public void addFavariteTrack(Track track) {
+        mRepository.addFavariteTrack(track, new TrackDataSource.DataCallback<String>() {
             @Override
-            public void onSuccess(List<Track> datas) {
-                mView.showResult(datas);
+            public void onSuccess(List<String> datas) {
+                mView.onAddTracksSuccess(datas);
             }
 
             @Override
             public void onFail(String mesage) {
-                mView.showNoResult(mesage);
+                mView.onFail(mesage);
             }
         });
     }
