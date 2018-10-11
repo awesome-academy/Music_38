@@ -1,5 +1,6 @@
 package com.framgia.vhlee.musicplus.service;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -10,10 +11,15 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.widget.RemoteViews;
 
+import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.mediaplayer.MediaPlayerManager;
 import com.framgia.vhlee.musicplus.mediaplayer.PlayMusicInterface;
+import com.framgia.vhlee.musicplus.ui.MainActivity;
 import com.framgia.vhlee.musicplus.util.Constants;
 
 import java.util.List;
@@ -22,11 +28,14 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
     private static final int WHAT_CREATE = 1;
     private static final int WHAT_CHANGE_SONG = 2;
     private static final String WORKER_THREAD_NAME = "ServiceStartArguments";
+    private static final int NOTIFI_ID = 9596;
     private final IBinder mBinder = new LocalBinder();
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
     private Handler mUIHandler;
     private MediaPlayerManager mMediaPlayerManager;
+    private RemoteViews mNotificationLayout;
+    private NotificationCompat.Builder mBuilder;
 
     @Override
     public void onCreate() {
@@ -51,6 +60,11 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     @Override
     public void onStartLoading(int index) {
+        if (mBuilder == null) {
+            createMusicNotification();
+        } else {
+            updateNotification(index);
+        }
         if (mUIHandler != null) {
             Message message = new Message();
             message.arg1 = index;
@@ -128,6 +142,8 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
     }
 
     public void requestCreate(int index) {
+        Track track = getTracks().get(index);
+        initLayoutNotification(R.layout.layout_notification, track.getTitle());
         Message message = new Message();
         message.what = WHAT_CREATE;
         message.arg1 = index;
@@ -160,6 +176,44 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     public MediaPlayerManager getMediaPlayerManager() {
         return mMediaPlayerManager;
+    }
+
+    private void initLayoutNotification(int resourceLayout, String songName) {
+        mNotificationLayout = new RemoteViews(getPackageName(), resourceLayout);
+        mNotificationLayout.setTextViewText(R.id.text_song_name, songName);
+        mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_pause_white);
+    }
+
+    private void createMusicNotification() {
+        mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_album_white)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setContent(mNotificationLayout);
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPenddingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPenddingIntent);
+        startForeground(NOTIFI_ID, mBuilder.build());
+    }
+
+    private void updateNotification(int index) {
+        Track track = getTracks().get(index);
+        mNotificationLayout.setTextViewText(R.id.text_song_name, track.getTitle());
+        if (isPlaying()) {
+            mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_pause_white);
+            mBuilder.setOngoing(false);
+        } else {
+            mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_play_button_white);
+            mBuilder.setOngoing(true);
+        }
+        mBuilder.setContent(mNotificationLayout);
+        startForeground(NOTIFI_ID, mBuilder.build());
     }
 
     public class LocalBinder extends Binder {
