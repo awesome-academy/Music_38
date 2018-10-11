@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,13 +33,17 @@ import com.framgia.vhlee.musicplus.mediaplayer.PlayMusicInterface;
 import com.framgia.vhlee.musicplus.service.DownloadService;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
+import com.framgia.vhlee.musicplus.ui.SimpleItemTouchHelperCallback;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
 import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.TimeUtil;
 
+import java.util.List;
+
 public class PlayActivity extends AppCompatActivity implements View.OnClickListener,
-        SeekBar.OnSeekBarChangeListener, ServiceConnection, TrackAdapter.OnClickItemSongListener {
+        SeekBar.OnSeekBarChangeListener, ServiceConnection, TrackAdapter.OnClickItemSongListener,
+        SimpleItemTouchHelperCallback.ItemTouchListenner, TrackAdapter.OnDragDropListener {
     private static final long MESSAGE_UPDATE_DELAY = 1000;
     private static final int REQUEST_PERMISSION = 10;
     private static final int WHAT_UPDATE_FOLLOWING_SERVICE = 1234;
@@ -132,6 +137,15 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mIsBoundService = true;
         initLoopImage();
         initShuffleImage();
+        initNavigation();
+    }
+
+    private void initNavigation() {
+        RecyclerView recyclerNow = findViewById(R.id.recycler_now_playing);
+        mTrackAdapter = new TrackAdapter(mService.getTracks(), this, this);
+        mTrackAdapter.setNowPlaying(true);
+        recyclerNow.setAdapter(mTrackAdapter);
+        initItemTouchHelper(recyclerNow);
     }
 
     @Override
@@ -262,9 +276,12 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
                     .replace(ARTWORK_DEFAULT_SIZE, ARTWORK_MAX_SIZE);
             setImage(mImageArtwork, artworkCover);
         } else mImageArtwork.setImageResource(R.drawable.default_artwork);
-        RecyclerView recyclerNow = findViewById(R.id.recycler_now_playing);
-        mTrackAdapter = new TrackAdapter(mService.getTracks(), this);
-        recyclerNow.setAdapter(mTrackAdapter);
+    }
+
+    private void initItemTouchHelper(RecyclerView recyclerView) {
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(this);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     private void beginDownload() {
@@ -290,6 +307,26 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    @Override
+    public void onMove(int oldPosition, int newPosition) {
+        mTrackAdapter.onMove(oldPosition, newPosition);
+    }
+
+    @Override
+    public void swipe(int position, int direction) {
+        mTrackAdapter.swipe(position, direction);
+    }
+
+    @Override
+    public void onDropViewHolder(List<Track> tracks) {
+        mService.setTracks(tracks);
+    }
+
+    @Override
+    public void onSwipeViewHolder(List<Track> tracks) {
+        mService.setTracks(tracks);
     }
 
     private void initLoopImage() {
