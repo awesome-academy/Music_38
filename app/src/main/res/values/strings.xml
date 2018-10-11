@@ -6,4 +6,8 @@
     <string name="title_genres">Genres</string>
     <string name="title_recent">Recent</string>
     <string name="default_name">No name</string>
+    <string name="shuffle_play">SHUFFLE PLAY</string>
+    <string name="default_song_name">Song name</string>
+    <string name="default_singer">Singer</string>
+    <string name="default_toolbar_title">List Tracks</string>
 </resources>
