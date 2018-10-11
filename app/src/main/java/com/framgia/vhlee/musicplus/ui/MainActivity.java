@@ -3,6 +3,7 @@ package com.framgia.vhlee.musicplus.ui;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -81,7 +82,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initUI();
         Intent serviceIntent = MyService.getMyServiceIntent(MainActivity.this);
-        if (mService == null) startService(serviceIntent);
+        if (mService == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
         bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
     }
 
@@ -90,6 +97,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         MyService.setUIHandler(mHandler);
         updateMiniPlayer();
+        selectTab(HomeFragment.newInstance());
     }
 
     @Override
@@ -108,10 +116,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.navigation_home:
-                selectTab(HomeFragment.newInstance(), null, true);
+                selectTab(HomeFragment.newInstance());
                 break;
             case R.id.navigation_my_music:
-                selectTab(MyMusicFragment.newInstance(), null, true);
+                selectTab(MyMusicFragment.newInstance());
                 break;
             case R.id.navigation_settings:
                 break;
@@ -124,16 +132,12 @@ public class MainActivity extends AppCompatActivity
     private void initUI() {
         BottomNavigationView bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(this);
-        selectTab(HomeFragment.newInstance(), null, false);
         mMiniPlayerClass = new MiniPlayerClass(this);
     }
 
-    private void selectTab(Fragment fragment, String tag, boolean addToBackStack) {
+    private void selectTab(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_fragments_container, fragment);
-        if (addToBackStack) {
-            transaction.addToBackStack(tag);
-        }
         transaction.commit();
     }
 

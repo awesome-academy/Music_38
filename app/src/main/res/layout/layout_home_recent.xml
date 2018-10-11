@@ -22,7 +22,7 @@
         android:id="@+id/view_recent"
         style="@style/ViewTransparentWhite"
         android:layout_width="0dp"
-        android:layout_height="@dimen/dp_160"
+        android:layout_height="@dimen/dp_350"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

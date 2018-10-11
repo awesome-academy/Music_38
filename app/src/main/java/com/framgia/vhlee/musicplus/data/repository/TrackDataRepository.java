@@ -7,8 +7,6 @@ import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
 import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
 import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 
-import java.util.List;
-
 public class TrackDataRepository implements TrackDataSource.Local, TrackDataSource.Remote {
 
     private static TrackDataRepository sInstance;
@@ -42,4 +40,8 @@ public class TrackDataRepository implements TrackDataSource.Local, TrackDataSour
         mLocalDataSource.loadOffline(context, callback);
     }
 
+    @Override
+    public void getDetailTrack(String api, DataCallback<Track> callback) {
+        mRemoteDataSource.getDetailTrack(api, callback);
+    }
 }

@@ -31,7 +31,17 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
-    public void loadRecent() {
+    public void loadRecent(String url) {
+        mRepository.getDetailTrack(url, new TrackDataSource.DataCallback<Track>() {
+            @Override
+            public void onSuccess(List<Track> datas) {
+                mView.showRecent(datas);
+            }
 
+            @Override
+            public void onFail(String mesage) {
+                mView.showRecentFail(mesage);
+            }
+        });
     }
 }
