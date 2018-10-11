@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
 
@@ -55,7 +56,17 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         }
 
         public void bindData(Track track) {
-
+            mTrackName.setText(track.getTitle());
+            mSingerName.setText(track.getArtist());
+            Glide.with(itemView.getContext())
+                    .load(track.getArtworkUrl())
+                    .into(mTrackImage);
         }
+    }
+
+    public void updateTracks(List<Track> tracks) {
+        mTracks.clear();
+        mTracks.addAll(tracks);
+        notifyDataSetChanged();
     }
 }

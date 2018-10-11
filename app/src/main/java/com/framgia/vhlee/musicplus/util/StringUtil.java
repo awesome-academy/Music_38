@@ -1,5 +1,7 @@
 package com.framgia.vhlee.musicplus.util;
 
+import com.framgia.vhlee.musicplus.BuildConfig;
+
 public class StringUtil {
     public static String append(String... strings) {
         StringBuilder builder = new StringBuilder();
@@ -10,7 +12,8 @@ public class StringUtil {
     }
 
     public static String getTrackByGenreApi(String genres) {
-        return StringUtil.append(Constants.ApiConfig.BASE_URL_GENRES, genres);
+        return StringUtil.append(Constants.ApiConfig.BASE_URL_GENRES, genres,
+                Constants.ApiConfig.CLIENT_ID, BuildConfig.CLIENT_ID);
     }
 
     public static String getTrackDetailApi(int trackId) {

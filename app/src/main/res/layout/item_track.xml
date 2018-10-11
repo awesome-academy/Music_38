@@ -13,6 +13,7 @@
             android:id="@+id/image_track"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
+            android:padding="@dimen/dp_5"
             android:src="@mipmap/ic_launcher" />
 
         <TextView
