@@ -53,10 +53,18 @@ public final class Constants {
         public static final String ARTWORK_DEFAULT_SIZE = "large";
         public static final String ARTWORK_MEDIUM_SIZE = "t300x300";
         public static final String ARTWORK_MAX_SIZE = "t500x500";
+        public static final String KEY_USER = "user";
+        public static final String KEY_USER_NAME = "username";
     }
 
     public static class Common {
         public static final int INDEX_UNIT = 1;
         public static final String EXTRA_GENRES = "genres";
+        public static final int WHAT_LOADING = 1;
+        public static final int WHAT_LOADING_SUCCESS = 2;
+        public static final int WHAT_UPDATE_MINI_PLAYER = 4;
+        public static final int WHAT_LOADING_FAIL = 5;
+        public static final int NEXT_SONG = 1;
+        public static final int PREVIOUS_SONG = -1;
     }
 }

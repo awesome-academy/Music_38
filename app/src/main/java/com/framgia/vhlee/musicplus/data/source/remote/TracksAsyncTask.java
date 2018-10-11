@@ -26,11 +26,11 @@ public class TracksAsyncTask extends BaseAsyncTask<Track> {
             for (int i = 0; i < collection.length(); i++) {
                 JSONObject trackInfo = collection.getJSONObject(i);
                 JSONObject track = trackInfo.getJSONObject(Constants.Track.TRACK);
-                JSONObject publisher = track.getJSONObject(Constants.Track.PUBLISHER);
                 int id = track.getInt(Constants.Track.ID);
                 String title = track.getString(Constants.Track.TITLE);
                 String artworkUrl = track.getString(Constants.Track.ARTWORK_URL);
-                String artist = publisher.getString(Constants.Track.ARTIST);
+                String artist = track.getJSONObject(Constants.Track.KEY_USER)
+                        .getString(Constants.Track.KEY_USER_NAME);
                 Track trackObject = new Track(id, title, artist);
                 trackObject.setArtworkUrl(artworkUrl);
                 tracks.add(trackObject);

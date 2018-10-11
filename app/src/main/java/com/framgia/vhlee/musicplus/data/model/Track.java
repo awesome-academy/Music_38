@@ -1,6 +1,10 @@
 package com.framgia.vhlee.musicplus.data.model;
 
-public class Track {
+import com.framgia.vhlee.musicplus.util.StringUtil;
+
+import java.io.Serializable;
+
+public class Track implements Serializable {
     private long mId;
     private String mTitle;
     private int mDuration;
@@ -65,12 +69,7 @@ public class Track {
     }
 
     public String getStremUrl() {
-        return mStremUrl;
-    }
-
-    public Track setStremUrl(String stremUrl) {
-        mStremUrl = stremUrl;
-        return this;
+        return StringUtil.getTrackStreamApi(getId());
     }
 
     public String getDownloadUrl() {
