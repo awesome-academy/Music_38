@@ -5,4 +5,21 @@
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
     </style>
+
+    <style name="RoundedButton" parent="Base.Widget.AppCompat.Button">
+        <item name="android:background">@drawable/rounded_button_style</item>
+        <item name="android:drawableEnd">@drawable/ic_view_more</item>
+        <item name="android:paddingLeft">@dimen/dp_10</item>
+        <item name="android:paddingRight">@dimen/dp_10</item>
+        <item name="android:textColor">@color/color_primary</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ViewTransparentWhite" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:layout_marginLeft">@dimen/dp_5</item>
+        <item name="android:layout_marginRight">@dimen/dp_5</item>
+        <item name="android:layout_marginTop">@dimen/dp_30</item>
+        <item name="android:background">@color/white_transparent</item>
+    </style>
 </resources>
