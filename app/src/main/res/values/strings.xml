@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Music Plus</string>
+    <string name="title_home">Home</string>
+    <string name="title_my_music">My Music</string>
+    <string name="title_settings">Settings</string>
 </resources>
