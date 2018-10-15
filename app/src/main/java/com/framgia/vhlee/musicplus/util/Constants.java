@@ -31,7 +31,8 @@ public final class Constants {
                 ALL_MUSIC, ALL_AUDIO, ALTERNATIVEROCK,
                 AMBIENT, CLASSICAL, COUNTRY
         })
-        public @interface GenresName {}
+        public @interface GenresName {
+        }
 
         public static final String ALL_MUSIC = "All Music";
         public static final String ALL_AUDIO = "All Audio";

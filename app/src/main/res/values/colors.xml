@@ -6,5 +6,6 @@
     <color name="white_transparent">#10ffffff</color>
     <color name="black_transparent">#32000000</color>
     <color name="color_white">#ffffff</color>
-    <color name="backgorund_genres">#08448C</color>
+    <color name="background_genres">#08448C</color>
+    <color name="color_blue_gray">#b0bec5</color>
 </resources>
