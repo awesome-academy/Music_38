@@ -26,8 +26,9 @@ import java.net.URL;
 
 public class DownloadService extends IntentService implements DownloadListener {
     private static final String TAG = "DownloadService";
-    private static final String ROOT_FOLDER = "storage/emulated/0/";
-    private static final String DOWNLOAD_FOLDER = "download/";
+    private static final String ROOT_FOLDER = "storage/emulated/0/download";
+    private static final String MP3_FORMAT = ".mp3";
+    public static final String LOACATION_HEADER = "Location";
     private static final String PERCENT = "%";
     private static final char DOT = '.';
     private static final int INVALID = -1;
@@ -35,7 +36,6 @@ public class DownloadService extends IntentService implements DownloadListener {
     private static final int PERCENT_UNIT = 100;
     private static final int NOTIFICATION_ID = 111;
     private static final int SIZE_UNIT = 1024;
-    private static final String LOACATION_HEADER = "Location";
     private NotificationManager mNotificationManager;
     private Notification.Builder mBuilder;
     private ResultReceiver mResultReceiver;
@@ -54,8 +54,6 @@ public class DownloadService extends IntentService implements DownloadListener {
     protected void onHandleIntent(Intent intent) {
         Track track = (Track) intent.getSerializableExtra(Constants.EXTRA_TRACK);
         String urlDownload = track.getDownloadUrl();
-        String title = StringUtil.append(track.getTitle(),
-                urlDownload.substring(urlDownload.lastIndexOf(DOT)));
         mResultReceiver = new DownloadReceiver(this, new Handler(Looper.getMainLooper()));
         try {
             URL url = new URL(urlDownload);
@@ -73,9 +71,8 @@ public class DownloadService extends IntentService implements DownloadListener {
                 String newUrl = connection.getHeaderField(LOACATION_HEADER);
                 connection = (HttpURLConnection) new URL(newUrl).openConnection();
             }
-            int fileLength = connection.getContentLength();
             InputStream input = new BufferedInputStream(connection.getInputStream());
-            downloadFile(input, title, fileLength);
+            downloadFile(input, track.getTitle(), connection.getContentLength());
             input.close();
             connection.disconnect();
         } catch (IOException e) {
@@ -86,7 +83,9 @@ public class DownloadService extends IntentService implements DownloadListener {
 
     @Override
     public void onPrepare(String title) {
-        Toast.makeText(this, R.string.notify_downloading, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,
+                StringUtil.append(getString(R.string.notify_downloading), title),
+                Toast.LENGTH_LONG).show();
         createNotification(title);
     }
 
@@ -112,8 +111,7 @@ public class DownloadService extends IntentService implements DownloadListener {
 
     public void downloadFile(InputStream input, String title, int fileLength) {
         try {
-            String fileName = StringUtil.append(ROOT_FOLDER,
-                    DOWNLOAD_FOLDER, title);
+            String fileName = StringUtil.append(ROOT_FOLDER, title, MP3_FORMAT);
             OutputStream output = new FileOutputStream(fileName);
             byte data[] = new byte[SIZE_UNIT];
             long total = 0;

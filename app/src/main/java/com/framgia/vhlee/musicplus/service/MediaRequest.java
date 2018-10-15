@@ -14,6 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface MediaRequest {
     int LOADING = 1;
     int SUCCESS = 2;
+    int UPDATE_PLAY_ACTIVITY = 3;
     int UPDATE_MINI_PLAYER = 4;
     int FAILURE = 5;
     int PAUSED = 6;
