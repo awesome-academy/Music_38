@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.util.Constants;
-import com.framgia.vhlee.musicplus.util.Constants.Genre.GenresName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +43,9 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
         return (mGenres != null) ? mGenres.size() : 0;
     }
 
-    public void addGenre(@GenresName Genre genre) {
+    public void addGenre(Genre genre) {
         mGenres.add(genre);
-        notifyItemInserted(mGenres.size() - Constants.Common.INDEX_UNIT);
+        notifyItemInserted(mGenres.size() - Constants.INDEX_UNIT);
     }
 
     public void setGenreClickListener(GenreClickListener listener) {

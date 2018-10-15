@@ -11,9 +11,12 @@
     <string name="default_singer">Singer</string>
     <string name="default_toolbar_title">List Tracks</string>
     <string name="default_time">00:00</string>
-    <string name="default_feature">Faeture with track</string>
+    <string name="default_feature">Feature with track</string>
     <string name="text_download">Download</string>
     <string name="text_favorites">Add to Favorites</string>
     <string name="text_playlist">Add to playlist</string>
     <string name="text_click_mini_player">Click mini player</string>
+    <string name="notify_download_complete">Download complete</string>
+    <string name="notify_downloading">Downloading...</string>
+    <string name="notify_begin_download">Begin downloading...</string>
 </resources>
