@@ -16,6 +16,7 @@ public class Track implements Serializable {
     private String mArtist;
     private String mAlbumTitle;
     private String mArtworkUrl;
+    private boolean mIsOffline;
 
     public Track(long id, String title, String artist) {
         mId = id;
@@ -115,5 +116,13 @@ public class Track implements Serializable {
     public Track setArtworkUrl(String artworkUrl) {
         mArtworkUrl = artworkUrl;
         return this;
+    }
+
+    public boolean isOffline() {
+        return mIsOffline;
+    }
+
+    public void setOffline(boolean offline) {
+        mIsOffline = offline;
     }
 }

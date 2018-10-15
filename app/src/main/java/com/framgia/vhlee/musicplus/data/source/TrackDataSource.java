@@ -1,5 +1,7 @@
 package com.framgia.vhlee.musicplus.data.source;
 
+import android.content.Context;
+
 import com.framgia.vhlee.musicplus.data.model.Track;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public interface TrackDataSource {
     }
 
     interface Local {
-
+        void loadOffline(Context context, DataCallback<Track> callback);
     }
 
     interface Remote extends TrackDataSource {
