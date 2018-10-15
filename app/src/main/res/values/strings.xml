@@ -19,4 +19,5 @@
     <string name="notify_download_complete">Download complete</string>
     <string name="notify_downloading">Downloading...</string>
     <string name="notify_begin_download">Begin downloading...</string>
+    <string name="title_now_playing">Now playing</string>
 </resources>
