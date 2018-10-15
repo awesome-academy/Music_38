@@ -5,4 +5,6 @@
     <color name="color_accent">#d50000</color>
     <color name="white_transparent">#10ffffff</color>
     <color name="black_transparent">#32000000</color>
+    <color name="color_white">#ffffff</color>
+    <color name="backgorund_genres">#08448C</color>
 </resources>
