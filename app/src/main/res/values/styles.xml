@@ -30,4 +30,10 @@
         <item name="android:textColorPrimary">@color/backgorund_genres</item>
         <item name="android:homeAsUpIndicator">@drawable/ic_back_arrow</item>
     </style>
+
+    <style name="NormalTitle" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:lines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

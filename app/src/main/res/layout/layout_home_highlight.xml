@@ -25,24 +25,36 @@
 
     <TextView
         android:id="@+id/text_title_highlight"
-        android:layout_width="wrap_content"
+        style="@style/NormalTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dp_15"
+        android:layout_marginLeft="@dimen/dp_10"
         android:text="@string/default_name"
-        android:textColor="@android:color/white"
         android:textSize="@dimen/sp_16"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@id/image_artwork"
+        app:layout_constraintRight_toLeftOf="@id/image_play"
         app:layout_constraintTop_toTopOf="@id/view_content_highlight" />
 
     <TextView
         android:id="@+id/text_subtitle_highlight"
-        android:layout_width="wrap_content"
+        style="@style/NormalTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/default_name"
-        android:textColor="@android:color/white"
         app:layout_constraintLeft_toLeftOf="@id/text_title_highlight"
+        app:layout_constraintRight_toRightOf="@id/text_title_highlight"
         app:layout_constraintTop_toBottomOf="@id/text_title_highlight" />
+
+    <ImageView
+        android:id="@+id/image_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_15"
+        android:src="@drawable/ic_play_button"
+        app:layout_constraintBottom_toBottomOf="@id/view_content_highlight"
+        app:layout_constraintRight_toRightOf="@id/view_content_highlight"
+        app:layout_constraintTop_toTopOf="@id/view_content_highlight" />
 
     <ImageView
         android:id="@+id/image_artwork"
