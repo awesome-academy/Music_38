@@ -1,16 +1,21 @@
 package com.framgia.vhlee.musicplus.ui.genres;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
+import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.util.ArrayList;
@@ -61,8 +66,9 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     }
 
     private void initData() {
-        String genres = null;
-        String api = StringUtil.getTrackByGenreApi(genres);
+        Intent intent = getIntent();
+        Genre genres = (Genre) intent.getSerializableExtra(Constants.Common.EXTRA_GENRES);
+        String api = StringUtil.getTrackByGenreApi(genres.getKey());
         mPresenter.getTracks(api);
     }
 
@@ -74,5 +80,11 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     @Override
     public void onLoadTracksFail(String message) {
         Toast.makeText(GenresActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static Intent getGenresIntent(Context context, Genre genre) {
+        Intent intent = new Intent(context, GenresActivity.class);
+        intent.putExtra(Constants.Common.EXTRA_GENRES, genre);
+        return intent;
     }
 }
