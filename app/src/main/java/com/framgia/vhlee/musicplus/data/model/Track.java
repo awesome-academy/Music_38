@@ -1,7 +1,7 @@
 package com.framgia.vhlee.musicplus.data.model;
 
 public class Track {
-    private int mId;
+    private long mId;
     private String mTitle;
     private int mDuration;
     private String mGenre;
@@ -13,17 +13,17 @@ public class Track {
     private String mAlbumTitle;
     private String mArtworkUrl;
 
-    public Track(int id, String title, String artist) {
+    public Track(long id, String title, String artist) {
         mId = id;
         mTitle = title;
         mArtist = artist;
     }
 
-    public int getId() {
+    public long getId() {
         return mId;
     }
 
-    public Track setId(int id) {
+    public Track setId(long id) {
         mId = id;
         return this;
     }

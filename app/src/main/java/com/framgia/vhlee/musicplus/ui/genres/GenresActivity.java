@@ -1,6 +1,5 @@
 package com.framgia.vhlee.musicplus.ui.genres;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,13 +11,15 @@ import android.widget.Toast;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenresActivity extends AppCompatActivity {
+public class GenresActivity extends AppCompatActivity implements GenresContract.View {
     private TrackAdapter mAdapter;
     private List<Track> mTracks;
+    private GenresContract.Presenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +27,12 @@ public class GenresActivity extends AppCompatActivity {
         setContentView(R.layout.activity_genres);
         String title = null;
         initToolbar(title);
-        initData();
+        mPresenter = new GenresPresenter(this);
         RecyclerView recyclerView = findViewById(R.id.recycler_list_tracks);
+        mTracks = new ArrayList<>();
         mAdapter = new TrackAdapter(mTracks);
         recyclerView.setAdapter(mAdapter);
+        initData();
     }
 
     @Override
@@ -48,8 +51,6 @@ public class GenresActivity extends AppCompatActivity {
 
     private void initToolbar(String title) {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(Color.RED);
-        toolbar.setSubtitleTextColor(Color.RED);
         if (title == null || title.isEmpty()) {
             setTitle(getString(R.string.default_toolbar_title));
         } else {
@@ -60,6 +61,18 @@ public class GenresActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mTracks = new ArrayList<>();
+        String genres = null;
+        String api = StringUtil.getTrackByGenreApi(genres);
+        mPresenter.getTracks(api);
+    }
+
+    @Override
+    public void onLoadTracksSuccess(List<Track> tracks) {
+        mAdapter.updateTracks(tracks);
+    }
+
+    @Override
+    public void onLoadTracksFail(String message) {
+        Toast.makeText(GenresActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 }
