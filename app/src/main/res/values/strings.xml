@@ -10,4 +10,5 @@
     <string name="default_song_name">Song name</string>
     <string name="default_singer">Singer</string>
     <string name="default_toolbar_title">List Tracks</string>
+    <string name="default_time">00:00</string>
 </resources>

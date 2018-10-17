@@ -19,6 +19,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.play.PlayActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".ui.genres.GenresActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
