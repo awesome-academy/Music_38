@@ -15,10 +15,12 @@ import com.framgia.vhlee.musicplus.data.model.Track;
 import java.util.List;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder> {
-    private List<Track> mTracks;
+    private static List<Track> mTracks;
+    private OnClickItemSongListener mListener;
 
-    public TrackAdapter(List<Track> tracks) {
+    public TrackAdapter(List<Track> tracks, OnClickItemSongListener listener) {
         mTracks = tracks;
+        mListener = listener;
     }
 
     @NonNull
@@ -31,7 +33,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-        myViewHolder.bindData(mTracks.get(i));
+        myViewHolder.bindData(i, mListener);
     }
 
     @Override
@@ -55,12 +57,18 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mAddNowPlaying = itemView.findViewById(R.id.image_add_now_play);
         }
 
-        public void bindData(Track track) {
-            mTrackName.setText(track.getTitle());
-            mSingerName.setText(track.getArtist());
+        public void bindData(final int position, final OnClickItemSongListener listener) {
+            mTrackName.setText(mTracks.get(position).getTitle());
+            mSingerName.setText(mTracks.get(position).getArtist());
             Glide.with(itemView.getContext())
-                    .load(track.getArtworkUrl())
+                    .load(mTracks.get(position).getArtworkUrl())
                     .into(mTrackImage);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.clickItemSongListener(position);
+                }
+            });
         }
     }
 
@@ -68,5 +76,9 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         mTracks.clear();
         mTracks.addAll(tracks);
         notifyDataSetChanged();
+    }
+
+    public interface OnClickItemSongListener {
+        void clickItemSongListener(int position);
     }
 }

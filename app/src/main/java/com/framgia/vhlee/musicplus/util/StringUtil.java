@@ -22,10 +22,10 @@ public class StringUtil {
                 Constants.ApiConfig.CLIENT_ID);
     }
 
-    public static String getTrackStreamApi(int trackId) {
+    public static String getTrackStreamApi(long trackId) {
         return StringUtil.append(Constants.ApiConfig.BASE_URL_TRACK, Constants.ApiConfig.SPLASH,
                 String.valueOf(trackId), Constants.ApiConfig.SPLASH,
                 Constants.ApiConfig.NAME_STREAM, Constants.ApiConfig.QUESTION_MARK,
-                Constants.ApiConfig.CLIENT_ID);
+                Constants.ApiConfig.CLIENT_ID, BuildConfig.CLIENT_ID);
     }
 }

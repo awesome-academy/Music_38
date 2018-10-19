@@ -57,7 +57,7 @@
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/dp_15"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="@id/mini_player"
+            app:layout_constraintBottom_toTopOf="@id/mini_player"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button_shuffle" />
@@ -67,8 +67,10 @@
             layout="@layout/layout_mini_player"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recycler_list_tracks" />
     </android.support.constraint.ConstraintLayout>
 </android.support.design.widget.CoordinatorLayout>
