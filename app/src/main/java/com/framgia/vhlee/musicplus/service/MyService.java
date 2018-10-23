@@ -68,7 +68,7 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
         if (mUIHandler != null) {
             Message message = new Message();
             message.arg1 = index;
-            message.what = Constants.Common.WHAT_LOADING;
+            message.what = MediaRequest.LOADING;
             mUIHandler.sendMessage(message);
         }
     }
@@ -76,14 +76,14 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
     @Override
     public void onLoadingFail(String message) {
         Message msg = new Message();
-        msg.what = Constants.Common.WHAT_LOADING_FAIL;
+        msg.what = MediaRequest.FAILURE;
         msg.obj = message;
         mUIHandler.sendMessage(msg);
     }
 
     @Override
     public void onLoadingSuccess() {
-        mUIHandler.sendEmptyMessage(Constants.Common.WHAT_LOADING_SUCCESS);
+        mUIHandler.sendEmptyMessage(MediaRequest.SUCCESS);
     }
 
     @Override

@@ -3,6 +3,8 @@
     package="com.framgia.vhlee.musicplus">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -26,6 +28,7 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <service android:name=".service.MyService" />
+        <service android:name=".service.DownloadService" />
     </application>
 
 </manifest>

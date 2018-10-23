@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
@@ -47,20 +48,18 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     private ImageView mNextTrack;
     private ImageView mPreviousTrack;
     private ImageView mTrackImage;
-    private String mGenreKey;
-
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case Constants.Common.WHAT_LOADING:
+                case MediaRequest.LOADING:
                     startLoading(msg.arg1);
                     break;
-                case Constants.Common.WHAT_LOADING_SUCCESS:
+                case MediaRequest.SUCCESS:
                     loadingSuccess();
                     break;
-                case Constants.Common.WHAT_UPDATE_MINI_PLAYER:
+                case MediaRequest.UPDATE_MINI_PLAYER:
                     if (mService.getMediaPlayer() != null) {
                         List<Track> tracks = mService.getTracks();
                         int index = mService.getSong();
@@ -77,7 +76,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
                         }
                     }
                     break;
-                case Constants.Common.WHAT_LOADING_FAIL:
+                case MediaRequest.FAILURE:
                     Toast.makeText(GenresActivity.this, (String) msg.obj,
                             Toast.LENGTH_SHORT).show();
                     break;
@@ -99,6 +98,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
             unbindService(mConnection);
         }
     };
+    private String mGenreApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,10 +167,10 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.image_next_song:
-                mService.requestChangeSong(Constants.Common.NEXT_SONG);
+                mService.requestChangeSong(Constants.NEXT_SONG);
                 break;
             case R.id.image_previous_song:
-                mService.requestChangeSong(Constants.Common.PREVIOUS_SONG);
+                mService.requestChangeSong(Constants.PREVIOUS_SONG);
                 break;
             case R.id.image_play_song:
                 clickPlaySong();
@@ -182,7 +182,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     @Override
     protected void onDestroy() {
-        unbindService(mConnection);
+        if (mService != null) unbindService(mConnection);
         super.onDestroy();
     }
 
@@ -190,7 +190,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     public void loadMoreData() {
         mIsScrolling = false;
         mProgressBar.setVisibility(View.VISIBLE);
-        String api = StringUtil.getTrackByGenreApi(mGenreKey, ++mOffset);
+        String api = StringUtil.initGenreApi(mGenreApi, ++mOffset);
         mPresenter.getTracks(api);
     }
 
@@ -240,17 +240,16 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     public static Intent getGenresIntent(Context context, Genre genre) {
         Intent intent = new Intent(context, GenresActivity.class);
-        intent.putExtra(Constants.Common.EXTRA_GENRES, genre);
+        intent.putExtra(Constants.EXTRA_GENRES, genre);
         return intent;
     }
 
     private void initData() {
         mOffset = 0;
         Intent intent = getIntent();
-        Genre genres = (Genre) intent.getSerializableExtra(Constants.Common.EXTRA_GENRES);
-        mGenreKey = genres.getKey();
-        String api = StringUtil.getTrackByGenreApi(mGenreKey, mOffset);
-        mPresenter.getTracks(api);
+        Genre genres = (Genre) intent.getSerializableExtra(Constants.EXTRA_GENRES);
+        mGenreApi = StringUtil.initGenreApi(genres.getKey(), mOffset);
+        mPresenter.getTracks(mGenreApi);
     }
 
     private void loadingSuccess() {
@@ -272,7 +271,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     private void updateMiniPlayer() {
         Message message = new Message();
-        message.what = Constants.Common.WHAT_UPDATE_MINI_PLAYER;
+        message.what = MediaRequest.UPDATE_MINI_PLAYER;
         mHandler.sendMessage(message);
     }
 

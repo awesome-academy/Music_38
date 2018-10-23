@@ -7,7 +7,7 @@ public class Genre implements Serializable {
     private String mName;
     private int mPhoto;
 
-    public Genre(String key, String name, int photo) {
+    public Genre(@GenreKey String key, @GenreName String name, int photo) {
         mKey = key;
         mName = name;
         mPhoto = photo;

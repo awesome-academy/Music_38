@@ -13,20 +13,22 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.framgia.vhlee.musicplus.BuildConfig;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
+import com.framgia.vhlee.musicplus.data.model.GenreKey;
+import com.framgia.vhlee.musicplus.data.model.GenreName;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
 import com.framgia.vhlee.musicplus.ui.adapter.GenreAdapter;
 import com.framgia.vhlee.musicplus.ui.genres.GenresActivity;
-import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.util.List;
 
 public class HomeFragment extends Fragment
         implements GenreAdapter.GenreClickListener, HomeContract.View {
+    private static final String ARTWORK_DEFAULT_SIZE = "large";
+    private static final String ARTWORK_MAX_SIZE = "t500x500";
     private HomeContract.Presenter mPresenter;
     private GenreAdapter mGenreAdapter;
     private ImageView mImageCover;
@@ -56,7 +58,7 @@ public class HomeFragment extends Fragment
     public void showHighLight(List<Track> tracks) {
         Track track = tracks.get(0);
         String artworkCover = track.getArtworkUrl()
-                .replace(Constants.Track.ARTWORK_DEFAULT_SIZE, Constants.Track.ARTWORK_MAX_SIZE);
+                .replace(ARTWORK_DEFAULT_SIZE, ARTWORK_MAX_SIZE);
         setImage(mImageAvatar, track.getArtworkUrl());
         setImage(mImageCover, artworkCover);
         mTextTitle.setText(track.getTitle());
@@ -102,23 +104,20 @@ public class HomeFragment extends Fragment
     }
 
     private void initData() {
-        String source = StringUtil.append(Constants.ApiConfig.BASE_URL_GENRES,
-                Constants.ApiConfig.GENRES_ALL_MUSIC,
-                Constants.ApiConfig.CLIENT_ID,
-                BuildConfig.CLIENT_ID);
+        String source = StringUtil.initGenreApi(GenreKey.ALL_MUSIC, 0);
         mPresenter.loadHighlight(source);
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_ALL_MUSIC,
-                Constants.Genre.ALL_MUSIC, R.drawable.default_artwork));
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_ALL_AUDIO,
-                Constants.Genre.ALL_AUDIO, R.drawable.default_artwork));
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_ALTERNATIVEROCK,
-                Constants.Genre.ALTERNATIVEROCK, R.drawable.default_artwork));
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_AMBIENT,
-                Constants.Genre.AMBIENT, R.drawable.default_artwork));
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_CLASSICAL,
-                Constants.Genre.CLASSICAL, R.drawable.default_artwork));
-        mGenreAdapter.addGenre(new Genre(Constants.ApiConfig.GENRES_COUNTRY,
-                Constants.Genre.COUNTRY, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.ALL_MUSIC,
+                GenreName.ALL_MUSIC, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.ALL_AUDIO,
+                GenreName.ALL_MUSIC, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.ALTERNATIVE,
+                GenreName.ALTERNATIVE, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.AMBIENT,
+                GenreName.AMBIENT, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.CLASSICAL,
+                GenreName.CLASSICAL, R.drawable.default_artwork));
+        mGenreAdapter.addGenre(new Genre(GenreKey.COUNTRY,
+                GenreName.COUNTRY, R.drawable.default_artwork));
     }
 
     /**

@@ -10,7 +10,7 @@ public class Track implements Serializable {
     private int mDuration;
     private String mGenre;
     private String mDescription;
-    private String mStremUrl;
+    private String mStreamUrl;
     private String mDownloadUrl;
     private boolean mIsDownloadable;
     private String mArtist;
@@ -68,8 +68,8 @@ public class Track implements Serializable {
         return this;
     }
 
-    public String getStremUrl() {
-        return StringUtil.getTrackStreamApi(getId());
+    public String getStreamUrl() {
+        return StringUtil.initStreamApi(getId());
     }
 
     public String getDownloadUrl() {

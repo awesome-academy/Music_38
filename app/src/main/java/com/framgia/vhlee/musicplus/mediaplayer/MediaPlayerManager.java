@@ -43,7 +43,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
             mMediaPlayer.release();
         }
         if (!mTracks.isEmpty() && mCurrentIndex >= 0) {
-            Uri uri = Uri.parse(mTracks.get(mCurrentIndex).getStremUrl());
+            Uri uri = Uri.parse(mTracks.get(mCurrentIndex).getStreamUrl());
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
@@ -126,7 +126,7 @@ public class MediaPlayerManager implements PlayMusicInterface, MediaPlayer.OnCom
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        changeSong(Constants.Common.NEXT_SONG);
+        changeSong(Constants.NEXT_SONG);
     }
 
     public List<Track> getTracks() {
