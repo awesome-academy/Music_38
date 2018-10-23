@@ -8,8 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +22,9 @@ import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.service.MyService;
+import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
 import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
@@ -31,8 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GenresActivity extends AppCompatActivity implements GenresContract.View,
+public class GenresActivity extends LoadMoreAbstract implements GenresContract.View,
         TrackAdapter.OnClickItemSongListener, View.OnClickListener {
+    private int mOffset;
     private TrackAdapter mAdapter;
     private List<Track> mTracks;
     private GenresContract.Presenter mPresenter;
@@ -44,6 +46,7 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     private ImageView mNextTrack;
     private ImageView mPreviousTrack;
     private ImageView mTrackImage;
+    private String mGenreKey;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -61,12 +64,12 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
                         List<Track> tracks = mService.getTracks();
                         int index = mService.getSong();
                         mMiniPlayer.setVisibility(View.VISIBLE);
-                        mTrackName.setText(mTracks.get(index).getTitle());
+                        mTrackName.setText(tracks.get(index).getTitle());
                         mTrackSinger.setText(tracks.get(index).getArtist());
                         Glide.with(GenresActivity.this)
                                 .load(tracks.get(index).getArtworkUrl())
                                 .into(mTrackImage);
-                        if (mService.getMediaPlayerManager().isPlaying()) {
+                        if (mService.isPlaying()) {
                             mPlayImage.setImageResource(R.drawable.pause);
                         } else {
                             mPlayImage.setImageResource(R.drawable.play_button);
@@ -102,7 +105,8 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
         setContentView(R.layout.activity_genres);
         String title = null;
         initToolbar(title);
-        initViews();
+        initView();
+        initViewLoadMore();
         initData();
     }
 
@@ -122,9 +126,12 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
 
     @Override
     public void onLoadTracksSuccess(List<Track> tracks) {
-        mAdapter.updateTracks(tracks);
-        mTracks.clear();
-        mTracks.addAll(tracks);
+        if (mOffset == 0) {
+            mAdapter.updateTracks(tracks);
+        } else {
+            mAdapter.addTracks(tracks);
+            mProgressBar.setVisibility(View.GONE);
+        }
         Intent serviceIntent = getMyServiceIntent(GenresActivity.this);
         if (mService == null) {
             startService(serviceIntent);
@@ -135,6 +142,7 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     @Override
     public void onLoadTracksFail(String message) {
         Toast.makeText(GenresActivity.this, message, Toast.LENGTH_SHORT).show();
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -144,28 +152,25 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     }
 
     @Override
+    public void showDialodFeatureTrack(int position) {
+        FeatureTrackDialog dialog = new FeatureTrackDialog(GenresActivity.this,
+                R.style.Theme_Dialog, mTracks.get(position));
+        dialog.show();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.mini_player:
-                break;
             case R.id.image_next_song:
                 mService.requestChangeSong(Constants.Common.NEXT_SONG);
-                mTrackSinger.setText(mTracks.get(mService.getSong()).getArtist());
-                mTrackName.setText(mTracks.get(mService.getSong()).getTitle());
                 break;
             case R.id.image_previous_song:
                 mService.requestChangeSong(Constants.Common.PREVIOUS_SONG);
-                mTrackSinger.setText(mTracks.get(mService.getSong()).getArtist());
-                mTrackName.setText(mTracks.get(mService.getSong()).getTitle());
                 break;
             case R.id.image_play_song:
-                if (mService.isPlaying()) {
-                    mService.pause();
-                    mPlayImage.setImageResource(R.drawable.play_button);
-                } else {
-                    mService.start();
-                    mPlayImage.setImageResource(R.drawable.pause);
-                }
+                clickPlaySong();
+            default:
+                clickMiniPlayer();
                 break;
         }
     }
@@ -174,6 +179,42 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
     protected void onDestroy() {
         unbindService(mConnection);
         super.onDestroy();
+    }
+
+    @Override
+    public void loadMoreData() {
+        mIsScrolling = false;
+        mProgressBar.setVisibility(View.VISIBLE);
+        String api = StringUtil.getTrackByGenreApi(mGenreKey, ++mOffset);
+        mPresenter.getTracks(api);
+    }
+
+    @Override
+    public void initViewLoadMore() {
+        mRecyclerView = findViewById(R.id.recycler_list_tracks);
+        mTracks = new ArrayList<>();
+        mAdapter = new TrackAdapter(mTracks, this);
+        mRecyclerView.setAdapter(mAdapter);
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mProgressBar = findViewById(R.id.proress_load_more);
+        mProgressBar.setVisibility(View.GONE);
+        setLoadMore();
+    }
+
+    private void initView() {
+        mPresenter = new GenresPresenter(this);
+        mMiniPlayer = findViewById(R.id.mini_player);
+        mPlayImage = findViewById(R.id.image_play_song);
+        mTrackName = findViewById(R.id.text_song_name);
+        mTrackSinger = findViewById(R.id.text_singer_name);
+        mNextTrack = findViewById(R.id.image_next_song);
+        mPreviousTrack = findViewById(R.id.image_previous_song);
+        mTrackImage = findViewById(R.id.image_track);
+        mMiniPlayer.setOnClickListener(this);
+        mPlayImage.setOnClickListener(this);
+        mNextTrack.setOnClickListener(this);
+        mPreviousTrack.setOnClickListener(this);
     }
 
     public static Intent getMyServiceIntent(Context context) {
@@ -198,29 +239,12 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
         return intent;
     }
 
-    private void initViews() {
-        mPresenter = new GenresPresenter(this);
-        RecyclerView recyclerView = findViewById(R.id.recycler_list_tracks);
-        mTracks = new ArrayList<>();
-        mAdapter = new TrackAdapter(mTracks, this);
-        recyclerView.setAdapter(mAdapter);
-        mMiniPlayer = findViewById(R.id.mini_player);
-        mPlayImage = findViewById(R.id.image_play_song);
-        mTrackName = findViewById(R.id.text_song_name);
-        mTrackSinger = findViewById(R.id.text_singer_name);
-        mNextTrack = findViewById(R.id.image_next_song);
-        mPreviousTrack = findViewById(R.id.image_previous_song);
-        mTrackImage = findViewById(R.id.image_track);
-        mMiniPlayer.setOnClickListener(this);
-        mPlayImage.setOnClickListener(this);
-        mNextTrack.setOnClickListener(this);
-        mPreviousTrack.setOnClickListener(this);
-    }
-
     private void initData() {
+        mOffset = 0;
         Intent intent = getIntent();
         Genre genres = (Genre) intent.getSerializableExtra(Constants.Common.EXTRA_GENRES);
-        String api = StringUtil.getTrackByGenreApi(genres.getKey());
+        mGenreKey = genres.getKey();
+        String api = StringUtil.getTrackByGenreApi(mGenreKey, mOffset);
         mPresenter.getTracks(api);
     }
 
@@ -245,5 +269,19 @@ public class GenresActivity extends AppCompatActivity implements GenresContract.
         Message message = new Message();
         message.what = Constants.Common.WHAT_UPDATE_MINI_PLAYER;
         mHandler.sendMessage(message);
+    }
+
+    private void clickPlaySong() {
+        if (mService.isPlaying()) {
+            mService.pause();
+            mPlayImage.setImageResource(R.drawable.play_button);
+        } else {
+            mService.start();
+            mPlayImage.setImageResource(R.drawable.pause);
+        }
+    }
+
+    private void clickMiniPlayer() {
+        Toast.makeText(this, R.string.text_click_mini_player, Toast.LENGTH_SHORT).show();
     }
 }
