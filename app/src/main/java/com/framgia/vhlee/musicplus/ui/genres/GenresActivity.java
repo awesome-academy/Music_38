@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -134,7 +135,11 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         }
         Intent serviceIntent = getMyServiceIntent(GenresActivity.this);
         if (mService == null) {
-            startService(serviceIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
         }
         bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
     }

@@ -64,7 +64,7 @@
         <include
             android:id="@+id/mini_player"
             layout="@layout/layout_mini_player"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
