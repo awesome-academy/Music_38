@@ -12,11 +12,13 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -25,13 +27,17 @@ import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.service.DownloadService;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
+import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
 
 public class PlayActivity extends AppCompatActivity
-        implements View.OnClickListener, ServiceConnection {
+        implements View.OnClickListener, ServiceConnection, TrackAdapter.OnClickItemSongListener {
     private static final String ARTWORK_DEFAULT_SIZE = "large";
     private static final String ARTWORK_MAX_SIZE = "t500x500";
     private static final int REQUEST_PERMISSION = 10;
+    private DrawerLayout mDrawerLayout;
     private ImageView mImageClose;
+    private ImageView mImageNow;
     private ImageView mImageArtwork;
     private ImageView mImageDownload;
     private TextView mTextTitle;
@@ -40,7 +46,9 @@ public class PlayActivity extends AppCompatActivity
     private ImageView mImageNext;
     private ImageView mImagePlay;
     private boolean mHasPermission;
+    private boolean mIsBoundService;
     private Track mTrack;
+    private TrackAdapter mTrackAdapter;
     private MyService mService;
     private ServiceConnection mConnection;
     private Handler mHandler = new Handler() {
@@ -49,7 +57,7 @@ public class PlayActivity extends AppCompatActivity
             super.handleMessage(msg);
             switch (msg.what) {
                 case MediaRequest.LOADING:
-                    updateUI(msg.arg1);
+                    if (mIsBoundService) updateUI(msg.arg1);
                     break;
                 case MediaRequest.SUCCESS:
                     break;
@@ -76,16 +84,26 @@ public class PlayActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (mIsBoundService) {
+            unbindService(mConnection);
+            mIsBoundService = false;
+        }
+    }
+
+    @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         MyService.LocalBinder binder = (MyService.LocalBinder) iBinder;
         mService = binder.getService();
         mService.setUIHandler(mHandler);
         requestUpdateUI();
+        mIsBoundService = true;
     }
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
-        unbindService(mConnection);
+        mIsBoundService = false;
     }
 
     @Override
@@ -94,12 +112,29 @@ public class PlayActivity extends AppCompatActivity
             case R.id.image_close:
                 super.onBackPressed();
                 break;
+            case R.id.image_now_playing:
+                mDrawerLayout.openDrawer(Gravity.END);
+                break;
             case R.id.image_download:
                 if (mHasPermission) beginDownload();
                 break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void clickItemSongListener(int position) {
+        mService.requestCreate(position);
+        mDrawerLayout.closeDrawer(Gravity.END);
+    }
+
+    @Override
+    public void showDialodFeatureTrack(int position) {
+        FeatureTrackDialog dialog = new FeatureTrackDialog(PlayActivity.this,
+                R.style.ThemeDialog, mService.getTracks().get(position));
+        mDrawerLayout.closeDrawer(Gravity.END);
+        dialog.show();
     }
 
     @Override
@@ -119,7 +154,10 @@ public class PlayActivity extends AppCompatActivity
 
     private void initUI() {
         mHasPermission = false;
+        mIsBoundService = true;
+        mDrawerLayout = findViewById(R.id.drawer_play);
         mImageClose = findViewById(R.id.image_close);
+        mImageNow = findViewById(R.id.image_now_playing);
         mImageDownload = findViewById(R.id.image_download);
         mTextTitle = findViewById(R.id.text_title);
         mTextArtist = findViewById(R.id.text_artist);
@@ -136,11 +174,12 @@ public class PlayActivity extends AppCompatActivity
         mImagePrevious.setOnClickListener(this);
         mImageNext.setOnClickListener(this);
         mImagePlay.setOnClickListener(this);
+        mImageNow.setOnClickListener(this);
     }
 
     private void bindMyService() {
         mConnection = this;
-        if (mService == null) startService(MyService.getMyServiceIntent(PlayActivity.this));
+        if (!mIsBoundService) startService(MyService.getMyServiceIntent(PlayActivity.this));
         bindService(MyService.getMyServiceIntent(PlayActivity.this), mConnection, BIND_AUTO_CREATE);
     }
 
@@ -158,6 +197,9 @@ public class PlayActivity extends AppCompatActivity
         String artworkCover = mTrack.getArtworkUrl()
                 .replace(ARTWORK_DEFAULT_SIZE, ARTWORK_MAX_SIZE);
         setImage(mImageArtwork, artworkCover);
+        RecyclerView recyclerNow = findViewById(R.id.recycler_now_playing);
+        mTrackAdapter = new TrackAdapter(mService.getTracks(), this);
+        recyclerNow.setAdapter(mTrackAdapter);
     }
 
     private void beginDownload() {

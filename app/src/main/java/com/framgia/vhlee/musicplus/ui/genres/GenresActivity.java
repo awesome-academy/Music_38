@@ -41,7 +41,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     private MyService mService;
     private MiniPlayerClass mMiniPlayerClass;
     private String mGenreKey;
-
+    private String mGenreApi;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -86,7 +86,6 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
             unbindService(mConnection);
         }
     };
-    private String mGenreApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,7 +153,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     @Override
     public void showDialodFeatureTrack(int position) {
         FeatureTrackDialog dialog = new FeatureTrackDialog(GenresActivity.this,
-                R.style.Theme_Dialog, mTracks.get(position));
+                R.style.ThemeDialog, mTracks.get(position));
         dialog.show();
     }
 
