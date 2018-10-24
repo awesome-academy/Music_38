@@ -14,17 +14,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
+import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
 import com.framgia.vhlee.musicplus.util.Constants;
@@ -41,44 +39,33 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     private List<Track> mTracks;
     private GenresContract.Presenter mPresenter;
     private MyService mService;
-    private ImageView mPlayImage;
-    private View mMiniPlayer;
-    private TextView mTrackName;
-    private TextView mTrackSinger;
-    private ImageView mNextTrack;
-    private ImageView mPreviousTrack;
-    private ImageView mTrackImage;
+    private MiniPlayerClass mMiniPlayerClass;
+    private String mGenreKey;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
                 case MediaRequest.LOADING:
-                    startLoading(msg.arg1);
+                    mMiniPlayerClass.startLoading(msg.arg1);
                     break;
                 case MediaRequest.SUCCESS:
-                    loadingSuccess();
+                    mMiniPlayerClass.loadingSuccess();
                     break;
                 case MediaRequest.UPDATE_MINI_PLAYER:
-                    if (mService.getMediaPlayer() != null) {
-                        List<Track> tracks = mService.getTracks();
-                        int index = mService.getSong();
-                        mMiniPlayer.setVisibility(View.VISIBLE);
-                        mTrackName.setText(tracks.get(index).getTitle());
-                        mTrackSinger.setText(tracks.get(index).getArtist());
-                        Glide.with(GenresActivity.this)
-                                .load(tracks.get(index).getArtworkUrl())
-                                .into(mTrackImage);
-                        if (mService.isPlaying()) {
-                            mPlayImage.setImageResource(R.drawable.pause);
-                        } else {
-                            mPlayImage.setImageResource(R.drawable.play_button);
-                        }
+                    if (mService != null && mService.getMediaPlayer() != null) {
+                        mMiniPlayerClass.update();
                     }
                     break;
                 case MediaRequest.FAILURE:
                     Toast.makeText(GenresActivity.this, (String) msg.obj,
                             Toast.LENGTH_SHORT).show();
+                    break;
+                case MediaRequest.PAUSED:
+                    mMiniPlayerClass.pause();
+                    break;
+                default:
                     break;
             }
         }
@@ -89,7 +76,8 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             MyService.LocalBinder binder = (MyService.LocalBinder) iBinder;
             mService = binder.getService();
-            mService.setUIHandler(mHandler);
+            MyService.setUIHandler(mHandler);
+            mMiniPlayerClass.setService(mService);
             updateMiniPlayer();
         }
 
@@ -109,6 +97,13 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         initView();
         initViewLoadMore();
         initData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MyService.setUIHandler(mHandler);
+        updateMiniPlayer();
     }
 
     @Override
@@ -133,7 +128,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
             mAdapter.addTracks(tracks);
             mProgressBar.setVisibility(View.GONE);
         }
-        Intent serviceIntent = getMyServiceIntent(GenresActivity.this);
+        Intent serviceIntent = MyService.getMyServiceIntent(GenresActivity.this);
         if (mService == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(serviceIntent);
@@ -165,19 +160,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.image_next_song:
-                mService.requestChangeSong(Constants.NEXT_SONG);
-                break;
-            case R.id.image_previous_song:
-                mService.requestChangeSong(Constants.PREVIOUS_SONG);
-                break;
-            case R.id.image_play_song:
-                clickPlaySong();
-            default:
-                clickMiniPlayer();
-                break;
-        }
+        mMiniPlayerClass.onClick(view);
     }
 
     @Override
@@ -190,7 +173,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     public void loadMoreData() {
         mIsScrolling = false;
         mProgressBar.setVisibility(View.VISIBLE);
-        String api = StringUtil.initGenreApi(mGenreApi, ++mOffset);
+        String api = StringUtil.initGenreApi(mGenreKey, ++mOffset);
         mPresenter.getTracks(api);
     }
 
@@ -209,22 +192,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     private void initView() {
         mPresenter = new GenresPresenter(this);
-        mMiniPlayer = findViewById(R.id.mini_player);
-        mPlayImage = findViewById(R.id.image_play_song);
-        mTrackName = findViewById(R.id.text_song_name);
-        mTrackSinger = findViewById(R.id.text_singer_name);
-        mNextTrack = findViewById(R.id.image_next_song);
-        mPreviousTrack = findViewById(R.id.image_previous_song);
-        mTrackImage = findViewById(R.id.image_track);
-        mMiniPlayer.setOnClickListener(this);
-        mPlayImage.setOnClickListener(this);
-        mNextTrack.setOnClickListener(this);
-        mPreviousTrack.setOnClickListener(this);
-    }
-
-    public static Intent getMyServiceIntent(Context context) {
-        Intent intent = new Intent(context, MyService.class);
-        return intent;
+        mMiniPlayerClass = new MiniPlayerClass(this);
     }
 
     private void initToolbar(String title) {
@@ -248,44 +216,14 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         mOffset = 0;
         Intent intent = getIntent();
         Genre genres = (Genre) intent.getSerializableExtra(Constants.EXTRA_GENRES);
-        mGenreApi = StringUtil.initGenreApi(genres.getKey(), mOffset);
+        mGenreKey = genres.getKey();
+        mGenreApi = StringUtil.initGenreApi(mGenreKey, mOffset);
         mPresenter.getTracks(mGenreApi);
-    }
-
-    private void loadingSuccess() {
-        mMiniPlayer.setVisibility(View.VISIBLE);
-        mPlayImage.setVisibility(View.VISIBLE);
-        mPlayImage.setImageResource(R.drawable.pause);
-    }
-
-    private void startLoading(int index) {
-        mPlayImage.setVisibility(View.INVISIBLE);
-        mMiniPlayer.setVisibility(View.VISIBLE);
-        Track track = mService.getTracks().get(index);
-        mTrackSinger.setText(track.getArtist());
-        mTrackName.setText(track.getTitle());
-        Glide.with(GenresActivity.this)
-                .load(track.getArtworkUrl())
-                .into(mTrackImage);
     }
 
     private void updateMiniPlayer() {
         Message message = new Message();
         message.what = MediaRequest.UPDATE_MINI_PLAYER;
         mHandler.sendMessage(message);
-    }
-
-    private void clickPlaySong() {
-        if (mService.isPlaying()) {
-            mService.pause();
-            mPlayImage.setImageResource(R.drawable.play_button);
-        } else {
-            mService.start();
-            mPlayImage.setImageResource(R.drawable.pause);
-        }
-    }
-
-    private void clickMiniPlayer() {
-        Toast.makeText(this, R.string.text_click_mini_player, Toast.LENGTH_SHORT).show();
     }
 }
