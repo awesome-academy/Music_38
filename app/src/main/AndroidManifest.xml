@@ -29,6 +29,10 @@
 
         <service android:name=".service.MyService" />
         <service android:name=".service.DownloadService" />
+
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

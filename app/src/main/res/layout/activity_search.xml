@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_primary"
+    tools:context=".ui.search.SearchActivity">
+
+    <ImageView
+        android:id="@+id/image_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_20"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintBottom_toBottomOf="@id/edit_search"
+        app:layout_constraintEnd_toStartOf="@id/edit_search"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/edit_search" />
+
+    <EditText
+        android:id="@+id/edit_search"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_15"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:background="@drawable/background_input"
+        android:hint="@string/hint_search"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:padding="@dimen/dp_10"
+        android:textColor="@color/color_primary"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toStartOf="@id/image_clear"
+        app:layout_constraintStart_toEndOf="@id/image_back"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:src="@drawable/ic_arrow_right"
+        app:layout_constraintBottom_toBottomOf="@id/edit_search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/edit_search"
+        app:layout_constraintTop_toTopOf="@id/edit_search" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_search"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_15"
+        android:background="@color/white_transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/progress_search_more"
+        app:layout_constraintTop_toBottomOf="@id/edit_search" />
+
+    <ProgressBar
+        android:id="@+id/progress_search_more"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_30"
+        android:background="@color/white_transparent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/mini_player"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_search" />
+
+    <include
+        android:id="@+id/mini_player"
+        layout="@layout/layout_mini_player"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_search_more" />
+
+</android.support.constraint.ConstraintLayout>

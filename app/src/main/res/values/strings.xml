@@ -21,4 +21,5 @@
     <string name="notify_begin_download">Begin downloading...</string>
     <string name="title_now_playing">Now playing</string>
     <string name="text_pause">Pause</string>
+    <string name="hint_search">Search something...</string>
 </resources>
