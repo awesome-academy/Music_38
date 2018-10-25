@@ -33,7 +33,13 @@ public class TrackDataRepository implements TrackDataSource.Local, TrackDataSour
     }
 
     @Override
+    public void searchTracks(String api, DataCallback<Track> callback) {
+        mRemoteDataSource.searchTracks(api, callback);
+    }
+
+    @Override
     public void loadOffline(Context context, DataCallback<Track> callback) {
         mLocalDataSource.loadOffline(context, callback);
     }
+
 }

@@ -54,9 +54,9 @@
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/dp_15"
         android:background="@color/white_transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/progress_search_more"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_search" />
 
     <ProgressBar
