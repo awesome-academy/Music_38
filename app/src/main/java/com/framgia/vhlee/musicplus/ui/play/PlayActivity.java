@@ -194,9 +194,11 @@ public class PlayActivity extends AppCompatActivity
         }
         mTextTitle.setText(mTrack.getTitle());
         mTextArtist.setText(mTrack.getArtist());
-        String artworkCover = mTrack.getArtworkUrl()
-                .replace(ARTWORK_DEFAULT_SIZE, ARTWORK_MAX_SIZE);
-        setImage(mImageArtwork, artworkCover);
+        if (mTrack.getArtworkUrl() != null) {
+            String artworkCover = mTrack.getArtworkUrl()
+                    .replace(ARTWORK_DEFAULT_SIZE, ARTWORK_MAX_SIZE);
+            setImage(mImageArtwork, artworkCover);
+        } else mImageArtwork.setImageResource(R.drawable.default_artwork);
         RecyclerView recyclerNow = findViewById(R.id.recycler_now_playing);
         mTrackAdapter = new TrackAdapter(mService.getTracks(), this);
         recyclerNow.setAdapter(mTrackAdapter);

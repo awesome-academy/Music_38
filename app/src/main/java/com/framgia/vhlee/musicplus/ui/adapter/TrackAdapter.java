@@ -9,14 +9,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.util.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder> {
     private List<Track> mTracks;
     private OnClickItemSongListener mListener;
+
+    public TrackAdapter(OnClickItemSongListener listener) {
+        mTracks = new ArrayList<>();
+        mListener = listener;
+    }
 
     public TrackAdapter(List<Track> tracks, OnClickItemSongListener listener) {
         mTracks = tracks;
@@ -62,9 +70,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         public void bindData(final int position, final OnClickItemSongListener listener) {
             mTrackName.setText(mTracks.get(position).getTitle());
             mSingerName.setText(mTracks.get(position).getArtist());
-            Glide.with(itemView.getContext())
-                    .load(mTracks.get(position).getArtworkUrl())
-                    .into(mTrackImage);
+            setImage(mTrackImage, mTracks.get(position).getArtworkUrl());
             mListener = listener;
             mPosition = position;
             itemView.setOnClickListener(this);
@@ -80,6 +86,15 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
                 default:
                     mListener.clickItemSongListener(mPosition);
             }
+        }
+
+        public void setImage(ImageView image, String source) {
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.error(R.drawable.default_artwork);
+            Glide.with(image.getContext())
+                    .load(source)
+                    .apply(requestOptions)
+                    .into(image);
         }
     }
 

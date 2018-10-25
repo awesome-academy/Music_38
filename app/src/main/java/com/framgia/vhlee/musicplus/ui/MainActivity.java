@@ -20,6 +20,7 @@ import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.home.HomeFragment;
+import com.framgia.vhlee.musicplus.ui.mymusic.MyMusicFragment;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initUI();
         Intent serviceIntent = MyService.getMyServiceIntent(MainActivity.this);
+        if (mService == null) startService(serviceIntent);
         bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
     }
 
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity
                 selectTab(HomeFragment.newInstance(), null, true);
                 break;
             case R.id.navigation_my_music:
+                selectTab(MyMusicFragment.newInstance(), null, true);
                 break;
             case R.id.navigation_settings:
                 break;
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity
     private void initUI() {
         BottomNavigationView bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(this);
-        selectTab(HomeFragment.newInstance(), null, true);
+        selectTab(HomeFragment.newInstance(), null, false);
         mMiniPlayerClass = new MiniPlayerClass(this);
     }
 
