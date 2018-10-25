@@ -5,10 +5,12 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
+import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
@@ -17,6 +19,7 @@ import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,18 +27,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class DownloadService extends IntentService implements DownloadListener {
+public class DownloadService extends IntentService
+        implements DownloadListener {
     private static final String TAG = "DownloadService";
-    private static final String ROOT_FOLDER = "storage/emulated/0/download";
+    private static final String ROOT_FOLDER = "storage/emulated/0/download/";
     private static final String MP3_FORMAT = ".mp3";
     public static final String LOACATION_HEADER = "Location";
     private static final String PERCENT = "%";
     private static final char DOT = '.';
+    private static final int NOTIFICATION_ID = 0;
     private static final int INVALID = -1;
     public static final int PROGRESS_MAX = 100;
     private static final int PERCENT_UNIT = 100;
-    private static final int NOTIFICATION_ID = 111;
     private static final int SIZE_UNIT = 1024;
+    private static final int COMPLETE = 99;
     private NotificationManager mNotificationManager;
     private Notification.Builder mBuilder;
     private ResultReceiver mResultReceiver;
@@ -106,7 +111,7 @@ public class DownloadService extends IntentService implements DownloadListener {
 
     @Override
     public void onFailure(String message) {
-        // TODO Handle event download fail
+        Toast.makeText(this, R.string.error_download, Toast.LENGTH_SHORT).show();
     }
 
     public void downloadFile(InputStream input, String title, int fileLength) {
@@ -120,12 +125,12 @@ public class DownloadService extends IntentService implements DownloadListener {
             while ((count = input.read(data)) != INVALID) {
                 total += count;
                 int progress = (int) (total * PERCENT_UNIT / fileLength);
-                Bundle result = new Bundle();
-                result.putInt(Constants.EXTRA_PROGRESS, progress);
-                mResultReceiver.send(DownloadRequest.UPDATE, result);
+                updateNotification(progress);
+                if (progress >= COMPLETE) sendRequest(null, null, DownloadRequest.FINISH);
                 output.write(data, 0, count);
             }
-            sendRequest(null, null, DownloadRequest.FINISH);
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                    Uri.fromFile(new File(fileName))));
             output.flush();
             output.close();
         } catch (IOException e) {

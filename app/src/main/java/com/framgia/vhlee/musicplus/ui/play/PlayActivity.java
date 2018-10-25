@@ -1,8 +1,10 @@
 package com.framgia.vhlee.musicplus.ui.play;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -37,21 +39,25 @@ import com.framgia.vhlee.musicplus.ui.SimpleItemTouchHelperCallback;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
 import com.framgia.vhlee.musicplus.util.Constants;
+import com.framgia.vhlee.musicplus.util.StringUtil;
 import com.framgia.vhlee.musicplus.util.TimeUtil;
 
+import java.io.File;
 import java.util.List;
 
 public class PlayActivity extends AppCompatActivity implements View.OnClickListener,
         SeekBar.OnSeekBarChangeListener, ServiceConnection, TrackAdapter.OnClickItemSongListener,
-        SimpleItemTouchHelperCallback.ItemTouchListenner, TrackAdapter.OnDragDropListener {
+        SimpleItemTouchHelperCallback.ItemTouchListenner, TrackAdapter.OnDragDropListener,
+        DialogInterface.OnClickListener {
     private static final long MESSAGE_UPDATE_DELAY = 1000;
     private static final int REQUEST_PERMISSION = 10;
     private static final int WHAT_UPDATE_FOLLOWING_SERVICE = 1234;
+    private static final String ROOT_FOLDER = "storage/emulated/0/download/";
+    private static final String MP3_FORMAT = ".mp3";
     private static final String ARTWORK_DEFAULT_SIZE = "large";
     private static final String ARTWORK_MAX_SIZE = "t500x500";
     private boolean mHasPermission;
     private MyService mService;
-    private ImageView mNowPlayingImage;
     private TextView mCurrentPositionText;
     private ImageView mImageNow;
     private SeekBar mSeekBar;
@@ -113,7 +119,6 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_play);
         bindMyService();
         initUI();
-        checkPermission();
     }
 
     protected void onStop() {
@@ -163,7 +168,8 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.openDrawer(Gravity.END);
                 break;
             case R.id.image_download:
-                if (mHasPermission) beginDownload();
+                checkPermission();
+                if (mHasPermission && isAcceptDownload(mTrack.getTitle())) beginDownload();
                 break;
             case R.id.image_loop:
                 changeLoopType();
@@ -179,6 +185,21 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.image_shuffle:
                 changeShuffleType();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int button) {
+        switch (button) {
+            case DialogInterface.BUTTON_POSITIVE:
+                beginDownload();
+                dialogInterface.dismiss();
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialogInterface.dismiss();
                 break;
             default:
                 break;
@@ -233,7 +254,6 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mImagePrevious = findViewById(R.id.image_previous);
         mImageNext = findViewById(R.id.image_next);
         mImagePlay = findViewById(R.id.image_play);
-        mNowPlayingImage = findViewById(R.id.image_now_playing);
         mCurrentPositionText = findViewById(R.id.text_current_position);
         mSeekBar = findViewById(R.id.seekbar_track);
         mDurationText = findViewById(R.id.text_duration);
@@ -249,7 +269,6 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mImageNext.setOnClickListener(this);
         mImagePlay.setOnClickListener(this);
         mImageNow.setOnClickListener(this);
-        mNowPlayingImage.setOnClickListener(this);
         mShuffleImage.setOnClickListener(this);
         mLoopImage.setOnClickListener(this);
         mSeekBar.setOnSeekBarChangeListener(this);
@@ -428,7 +447,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
             mImagePlay.setImageResource(R.drawable.ic_play);
             return;
         }
-        mImagePlay.setImageResource(R.drawable.pause);
+        mImagePlay.setImageResource(R.drawable.ic_pause);
         int mediaStatus = mService.getMediaPlayerManager().getStatus();
         if (mediaStatus == PlayMusicInterface.StatusPlayerType.STOPPED) {
             mService.requestPrepareAsync();
@@ -496,5 +515,25 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    private boolean isAcceptDownload(String title) {
+        String fileName = StringUtil.append(ROOT_FOLDER, title, MP3_FORMAT);
+        File file = new File(fileName);
+        if (!file.isDirectory() && file.exists()) return confirmDownload();
+        return true;
+    }
+
+    private boolean confirmDownload() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.notify_file_exists)
+                .setMessage(R.string.notify_confirm_download)
+                .setIcon(R.drawable.ic_download)
+                .setPositiveButton(R.string.confirm_yes, this)
+                .setNegativeButton(R.string.confirm_no, this)
+                .create();
+        dialog.show();
+        return false;
+
     }
 }
