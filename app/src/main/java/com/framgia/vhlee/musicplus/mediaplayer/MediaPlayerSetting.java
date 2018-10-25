@@ -7,6 +7,16 @@ import java.lang.annotation.RetentionPolicy;
 
 public class MediaPlayerSetting {
     protected int mLoopType;
+    protected int mShuffleType;
+
+    public int getShuffleType() {
+        return mShuffleType;
+    }
+
+    public MediaPlayerSetting setShuffleType(int shuffleType) {
+        mShuffleType = shuffleType;
+        return this;
+    }
 
     @LoopType
     public int getLoopType() {
@@ -23,5 +33,12 @@ public class MediaPlayerSetting {
         int NONE = 0;
         int ONE = 1;
         int ALL = 2;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({ShuffleType.ON, ShuffleType.OFF})
+    public @interface ShuffleType {
+        int OFF = 0;
+        int ON = 1;
     }
 }

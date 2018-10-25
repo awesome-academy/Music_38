@@ -11,6 +11,7 @@ import com.framgia.vhlee.musicplus.util.Constants;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 public class MediaPlayerManager extends MediaPlayerSetting
         implements PlayMusicInterface, MediaPlayer.OnCompletionListener,
@@ -30,6 +31,7 @@ public class MediaPlayerManager extends MediaPlayerSetting
         mContext = context;
         mListener = listener;
         mLoopType = LoopType.NONE;
+        mShuffleType = ShuffleType.OFF;
     }
 
     public static MediaPlayerManager getsInstance(Context context,
@@ -54,14 +56,12 @@ public class MediaPlayerManager extends MediaPlayerSetting
         }
         if (!mTracks.isEmpty() && mCurrentIndex >= 0) {
             if (track.isOffline()) initOffline(track);
-            else initOnline(track);
-            mMediaPlayer.setOnCompletionListener(this);
+            else initOnline();
         }
     }
 
-    private void initOnline(Track track) {
+    private void initOnline() {
         Uri uri = Uri.parse(mTracks.get(mCurrentIndex).getStreamUrl());
-        mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(mContext, uri);
@@ -75,6 +75,7 @@ public class MediaPlayerManager extends MediaPlayerSetting
     private void initOffline(Track track) {
         mMediaPlayer = MediaPlayer.create(mContext,
                 Uri.parse(track.getDownloadUrl()));
+        mMediaPlayer.setOnCompletionListener(this);
         start();
     }
 
@@ -155,8 +156,11 @@ public class MediaPlayerManager extends MediaPlayerSetting
     }
 
     @Override
-    public void changeSong(int i) {
-        mCurrentIndex += i;
+    public void changeSong(int index) {
+        if (mShuffleType == MediaPlayerSetting.ShuffleType.ON) {
+            index = ramdomSong();
+        }
+        mCurrentIndex += index;
         if (mCurrentIndex >= mTracks.size()) {
             mCurrentIndex = 0;
         } else if (mCurrentIndex < 0) {
@@ -228,5 +232,14 @@ public class MediaPlayerManager extends MediaPlayerSetting
         void onTrackPaused();
 
         void onTrackStopped();
+    }
+
+    private int ramdomSong() {
+        int result = 0;
+        int currentSong = getSong();
+        int maxSong = getTracks().size() - NUMBER_1;
+        Random r = new Random();
+        result = r.nextInt((maxSong - currentSong + NUMBER_1) + currentSong) - currentSong;
+        return result;
     }
 }
