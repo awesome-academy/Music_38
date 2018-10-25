@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity
                 case MediaRequest.PAUSED:
                     mMiniPlayerClass.pause();
                     break;
+                case MediaRequest.STOPPED:
+                    mMiniPlayerClass.stop();
+                    break;
                 default:
                     break;
             }
@@ -87,6 +90,12 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         MyService.setUIHandler(mHandler);
         updateMiniPlayer();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(mConnection);
+        super.onDestroy();
     }
 
     /**

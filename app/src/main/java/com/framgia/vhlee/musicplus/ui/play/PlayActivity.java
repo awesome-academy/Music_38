@@ -2,6 +2,7 @@ package com.framgia.vhlee.musicplus.ui.play;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -18,39 +19,54 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.mediaplayer.MediaPlayerSetting;
+import com.framgia.vhlee.musicplus.mediaplayer.PlayMusicInterface;
 import com.framgia.vhlee.musicplus.service.DownloadService;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
+import com.framgia.vhlee.musicplus.util.Constants;
+import com.framgia.vhlee.musicplus.util.TimeUtil;
 
-public class PlayActivity extends AppCompatActivity
-        implements View.OnClickListener, ServiceConnection, TrackAdapter.OnClickItemSongListener {
+public class PlayActivity extends AppCompatActivity implements View.OnClickListener,
+        SeekBar.OnSeekBarChangeListener, ServiceConnection, TrackAdapter.OnClickItemSongListener {
+    private static final long MESSAGE_UPDATE_DELAY = 1000;
+    private static final int REQUEST_PERMISSION = 10;
+    private static final int WHAT_UPDATE_FOLLOWING_SERVICE = 1234;
     private static final String ARTWORK_DEFAULT_SIZE = "large";
     private static final String ARTWORK_MAX_SIZE = "t500x500";
-    private static final int REQUEST_PERMISSION = 10;
-    private DrawerLayout mDrawerLayout;
-    private ImageView mImageClose;
+    private boolean mHasPermission;
+    private MyService mService;
+    private ImageView mNowPlayingImage;
+    private TextView mCurrentPositionText;
     private ImageView mImageNow;
-    private ImageView mImageArtwork;
+    private SeekBar mSeekBar;
+    private TextView mDurationText;
+    private ImageView mShuffleImage;
+    private ImageView mLoopImage;
+    private ImageView mImageClose;
+    private DrawerLayout mDrawerLayout;
     private ImageView mImageDownload;
     private TextView mTextTitle;
     private TextView mTextArtist;
+    private ImageView mImageArtwork;
     private ImageView mImagePrevious;
     private ImageView mImageNext;
     private ImageView mImagePlay;
-    private boolean mHasPermission;
     private boolean mIsBoundService;
     private Track mTrack;
     private TrackAdapter mTrackAdapter;
-    private MyService mService;
     private ServiceConnection mConnection;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -58,16 +74,28 @@ public class PlayActivity extends AppCompatActivity
             switch (msg.what) {
                 case MediaRequest.LOADING:
                     if (mIsBoundService) updateUI(msg.arg1);
+                    startLoading(msg.arg1);
                     break;
                 case MediaRequest.SUCCESS:
+                    loadingSuccess();
                     break;
                 case MediaRequest.UPDATE_PLAY_ACTIVITY:
                     updateUI(msg.arg1);
                     break;
                 case MediaRequest.UPDATE_MINI_PLAYER:
                     break;
-                case MediaRequest.FAILURE:
+                case MediaRequest.PAUSED:
+                    mImagePlay.setImageResource(R.drawable.ic_play);
                     break;
+                case MediaRequest.FAILURE:
+                    Toast.makeText(PlayActivity.this, (String) msg.obj,
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case MediaRequest.STOPPED:
+                    mImagePlay.setImageResource(R.drawable.ic_play);
+                    break;
+                case WHAT_UPDATE_FOLLOWING_SERVICE:
+                    updateSeekBar();
                 default:
                     break;
             }
@@ -78,18 +106,21 @@ public class PlayActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
-        initUI();
         bindMyService();
+        initUI();
         checkPermission();
     }
 
-    @Override
     protected void onStop() {
         super.onStop();
         if (mIsBoundService) {
-            unbindService(mConnection);
             mIsBoundService = false;
         }
+    }
+
+    protected void onDestroy() {
+        unbindService(mConnection);
+        super.onDestroy();
     }
 
     @Override
@@ -99,6 +130,7 @@ public class PlayActivity extends AppCompatActivity
         mService.setUIHandler(mHandler);
         requestUpdateUI();
         mIsBoundService = true;
+        initLoopImage();
     }
 
     @Override
@@ -118,6 +150,18 @@ public class PlayActivity extends AppCompatActivity
             case R.id.image_download:
                 if (mHasPermission) beginDownload();
                 break;
+            case R.id.image_loop:
+                changeLoopType();
+                break;
+            case R.id.image_previous:
+                mService.requestChangeSong(Constants.PREVIOUS_SONG);
+                break;
+            case R.id.image_next:
+                mService.requestChangeSong(Constants.NEXT_SONG);
+                break;
+            case R.id.image_play:
+                playSong();
+                break;
             default:
                 break;
         }
@@ -135,6 +179,12 @@ public class PlayActivity extends AppCompatActivity
                 R.style.ThemeDialog, mService.getTracks().get(position));
         mDrawerLayout.closeDrawer(Gravity.END);
         dialog.show();
+    }
+
+    public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
+        if (fromUser) {
+            mService.requestSeek(i);
+        }
     }
 
     @Override
@@ -165,6 +215,12 @@ public class PlayActivity extends AppCompatActivity
         mImagePrevious = findViewById(R.id.image_previous);
         mImageNext = findViewById(R.id.image_next);
         mImagePlay = findViewById(R.id.image_play);
+        mNowPlayingImage = findViewById(R.id.image_now_playing);
+        mCurrentPositionText = findViewById(R.id.text_current_position);
+        mSeekBar = findViewById(R.id.seekbar_track);
+        mDurationText = findViewById(R.id.text_duration);
+        mShuffleImage = findViewById(R.id.image_shuffle);
+        mLoopImage = findViewById(R.id.image_loop);
         setListener();
     }
 
@@ -175,11 +231,14 @@ public class PlayActivity extends AppCompatActivity
         mImageNext.setOnClickListener(this);
         mImagePlay.setOnClickListener(this);
         mImageNow.setOnClickListener(this);
+        mNowPlayingImage.setOnClickListener(this);
+        mShuffleImage.setOnClickListener(this);
+        mLoopImage.setOnClickListener(this);
+        mSeekBar.setOnSeekBarChangeListener(this);
     }
 
     private void bindMyService() {
         mConnection = this;
-        if (!mIsBoundService) startService(MyService.getMyServiceIntent(PlayActivity.this));
         bindService(MyService.getMyServiceIntent(PlayActivity.this), mConnection, BIND_AUTO_CREATE);
     }
 
@@ -210,10 +269,40 @@ public class PlayActivity extends AppCompatActivity
     }
 
     private void requestUpdateUI() {
+        if (mService != null && mService.getMediaPlayer() != null) {
+            updateUI();
+        }
         Message message = new Message();
         message.what = MediaRequest.UPDATE_PLAY_ACTIVITY;
         message.arg1 = mService.getSong();
         mHandler.sendMessage(message);
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    private void initLoopImage() {
+        int looptype = mService.getMediaPlayerManager().getLoopType();
+        switch (looptype) {
+            case MediaPlayerSetting.LoopType.NONE:
+                mLoopImage.setImageResource(R.drawable.ic_loop_none);
+                break;
+            case MediaPlayerSetting.LoopType.ONE:
+                mLoopImage.setImageResource(R.drawable.ic_loop_one);
+                break;
+            case MediaPlayerSetting.LoopType.ALL:
+                mLoopImage.setImageResource(R.drawable.ic_loop_all);
+                break;
+            default:
+                break;
+        }
     }
 
     private void checkPermission() {
@@ -232,5 +321,109 @@ public class PlayActivity extends AppCompatActivity
                 .load(source)
                 .apply(requestOptions)
                 .into(image);
+    }
+
+    public static Intent getPlayActivityIntent(Context context) {
+        Intent intent = new Intent(context, PlayActivity.class);
+        return intent;
+    }
+
+    private void updateUI() {
+        int index = mService.getSong();
+        Track track = mService.getTracks().get(index);
+        int duration = mService.getDuration();
+        Glide.with(this)
+                .load(track.getArtworkUrl())
+                .into(mImageArtwork);
+        mTextTitle.setText(track.getTitle());
+        mTextArtist.setText(track.getArtist());
+        mSeekBar.setMax(mService.getDuration());
+        mSeekBar.setProgress(mService.getCurrrentPosition());
+        mDurationText.setText(TimeUtil.convertMilisecondToFormatTime(duration));
+        updatePlayImage(mService.isPlaying());
+        mHandler.sendEmptyMessageDelayed(WHAT_UPDATE_FOLLOWING_SERVICE,
+                MESSAGE_UPDATE_DELAY);
+    }
+
+    private void updatePlayImage(boolean isPlaying) {
+        if (isPlaying) {
+            mImagePlay.setImageResource(R.drawable.ic_pause);
+            return;
+        }
+        mImagePlay.setImageResource(R.drawable.ic_play);
+    }
+
+    public void loadingSuccess() {
+        mSeekBar.setVisibility(View.VISIBLE);
+        int duration = mService.getDuration();
+        mImagePlay.setVisibility(View.VISIBLE);
+        mImagePlay.setImageResource(R.drawable.ic_pause);
+        mSeekBar.setMax(mService.getDuration());
+        mDurationText.setText(TimeUtil.convertMilisecondToFormatTime(duration));
+    }
+
+    public void startLoading(int index) {
+        mSeekBar.setVisibility(View.INVISIBLE);
+        mImagePlay.setVisibility(View.INVISIBLE);
+        Track track = mService.getTracks().get(index);
+        mTextArtist.setText(track.getArtist());
+        mTextTitle.setText(track.getTitle());
+        mSeekBar.setProgress(0);
+        mCurrentPositionText.setText(TimeUtil.convertMilisecondToFormatTime(0));
+        mDurationText.setText(TimeUtil.convertMilisecondToFormatTime(0));
+        Glide.with(this)
+                .load(track.getArtworkUrl())
+                .into(mImageArtwork);
+
+    }
+
+    public void pause() {
+        mImagePlay.setImageResource(R.drawable.ic_play);
+    }
+
+    private void playSong() {
+        if (mService.isPlaying()) {
+            mService.requestPause();
+            mImagePlay.setImageResource(R.drawable.ic_play);
+            return;
+        }
+        mImagePlay.setImageResource(R.drawable.pause);
+        int mediaStatus = mService.getMediaPlayerManager().getStatus();
+        if (mediaStatus == PlayMusicInterface.StatusPlayerType.STOPPED) {
+            mService.requestPrepareAsync();
+            return;
+        }
+        mService.requestStart();
+    }
+
+    private void changeLoopType() {
+        int looptype = mService.getMediaPlayerManager().getLoopType();
+        switch (looptype) {
+            case MediaPlayerSetting.LoopType.NONE:
+                mService.getMediaPlayerManager().setLoopType(MediaPlayerSetting.LoopType.ONE);
+                mService.loop(true);
+                initLoopImage();
+                break;
+            case MediaPlayerSetting.LoopType.ONE:
+                mService.getMediaPlayerManager().setLoopType(MediaPlayerSetting.LoopType.ALL);
+                mService.loop(false);
+                initLoopImage();
+                break;
+            case MediaPlayerSetting.LoopType.ALL:
+                mService.getMediaPlayerManager().setLoopType(MediaPlayerSetting.LoopType.NONE);
+                mService.loop(false);
+                initLoopImage();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void updateSeekBar() {
+        int currentPosition = mService.getCurrrentPosition();
+        mSeekBar.setProgress(currentPosition);
+        mCurrentPositionText.setText(TimeUtil.convertMilisecondToFormatTime(currentPosition));
+        mHandler.sendEmptyMessageDelayed(WHAT_UPDATE_FOLLOWING_SERVICE,
+                MESSAGE_UPDATE_DELAY);
     }
 }

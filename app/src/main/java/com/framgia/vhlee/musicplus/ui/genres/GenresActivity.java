@@ -65,6 +65,9 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
                 case MediaRequest.PAUSED:
                     mMiniPlayerClass.pause();
                     break;
+                case MediaRequest.STOPPED:
+                    mMiniPlayerClass.stop();
+                    break;
                 default:
                     break;
             }

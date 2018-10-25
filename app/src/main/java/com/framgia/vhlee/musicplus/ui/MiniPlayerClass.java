@@ -1,7 +1,6 @@
 package com.framgia.vhlee.musicplus.ui;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,6 +8,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.mediaplayer.PlayMusicInterface;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.play.PlayActivity;
 import com.framgia.vhlee.musicplus.util.Constants;
@@ -55,17 +55,10 @@ public class MiniPlayerClass implements View.OnClickListener {
                 mService.requestChangeSong(Constants.PREVIOUS_SONG);
                 break;
             case R.id.image_play_song:
-                if (mService.isPlaying()) {
-                    mService.requestPause();
-                    mPlayImage.setImageResource(R.drawable.play_button);
-                } else {
-                    mService.requestStart();
-                    mPlayImage.setImageResource(R.drawable.pause);
-                }
+                playSong();
                 break;
             default:
-                clickMiniPlayer();
-                break;
+                mActivity.startActivity(PlayActivity.getPlayActivityIntent(mActivity));
         }
     }
 
@@ -110,6 +103,7 @@ public class MiniPlayerClass implements View.OnClickListener {
         mMiniPlayer.setVisibility(View.VISIBLE);
         mPlayImage.setVisibility(View.VISIBLE);
         mPlayImage.setImageResource(R.drawable.pause);
+        mMiniPlayer.setClickable(true);
     }
 
     public void startLoading(int index) {
@@ -123,6 +117,7 @@ public class MiniPlayerClass implements View.OnClickListener {
                     .load(track.getArtworkUrl())
                     .into(mTrackImage);
         }
+        mMiniPlayer.setClickable(false);
     }
 
     public void update() {
@@ -138,16 +133,46 @@ public class MiniPlayerClass implements View.OnClickListener {
         }
         if (mService.isPlaying()) {
             mPlayImage.setImageResource(R.drawable.pause);
-        } else {
-            mPlayImage.setImageResource(R.drawable.play_button);
+            return;
         }
+        mPlayImage.setImageResource(R.drawable.play_button);
+        int status = mService.getMediaPlayerManager().getStatus();
+        if (status == PlayMusicInterface.StatusPlayerType.STOPPED
+                || status == PlayMusicInterface.StatusPlayerType.PAUSED) {
+            setVisiblePlayImage(true);
+            return;
+        }
+        setVisiblePlayImage(false);
     }
 
     public void pause() {
         mPlayImage.setImageResource(R.drawable.play_button);
     }
 
-    private void clickMiniPlayer() {
-        mActivity.startActivity(new Intent(mActivity, PlayActivity.class));
+    public void stop() {
+        mPlayImage.setImageResource(R.drawable.play_button);
+    }
+
+    private void playSong() {
+        if (mService.isPlaying()) {
+            mService.requestPause();
+            mPlayImage.setImageResource(R.drawable.play_button);
+            return;
+        }
+        mPlayImage.setImageResource(R.drawable.pause);
+        int mediaStatus = mService.getMediaPlayerManager().getStatus();
+        if (mediaStatus == PlayMusicInterface.StatusPlayerType.STOPPED) {
+            mService.requestPrepareAsync();
+            return;
+        }
+        mService.requestStart();
+    }
+
+    private void setVisiblePlayImage(boolean isVisible) {
+        if (isVisible) {
+            mPlayImage.setVisibility(View.VISIBLE);
+            return;
+        }
+        mPlayImage.setVisibility(View.INVISIBLE);
     }
 }

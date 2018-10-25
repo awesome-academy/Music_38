@@ -16,6 +16,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
@@ -26,11 +27,14 @@ import com.framgia.vhlee.musicplus.util.Constants;
 
 import java.util.List;
 
-public class MyService extends Service implements MediaPlayerManager.OnLoadingTrackListener, PlayMusicInterface {
+public class MyService extends Service
+        implements MediaPlayerManager.OnLoadingTrackListener, PlayMusicInterface {
     private static final int WHAT_CREATE = 1;
     private static final int WHAT_CHANGE_SONG = 2;
     private static final int WHAT_REQUEST_START = 3;
     private static final int WHAT_REQUEST_PAUSE = 4;
+    private static final int WHAT_REQUEST_SEEK = 5;
+    private static final int WHAT_REQUEST_PREPARE_ASYNC = 6;
     private static final String WORKER_THREAD_NAME = "ServiceStartArguments";
     private static final int NOTIFI_ID = 9596;
     private static final int VALUE_NEXT_SONG = 4;
@@ -82,6 +86,8 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
                         requestStart();
                     }
                     break;
+                default:
+                    break;
             }
         }
         return START_STICKY;
@@ -123,6 +129,12 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
     }
 
     @Override
+    public void onTrackStopped() {
+        updateNotification();
+        mUIHandler.sendEmptyMessage(MediaRequest.STOPPED);
+    }
+
+    @Override
     public void create(int index) {
         mMediaPlayerManager.create(index);
     }
@@ -140,6 +152,11 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
     @Override
     public void pause() {
         mMediaPlayerManager.pause();
+    }
+
+    @Override
+    public void stop() {
+        mMediaPlayerManager.stop();
     }
 
     @Override
@@ -202,6 +219,17 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     public void requestPause() {
         mServiceHandler.sendEmptyMessage(WHAT_REQUEST_PAUSE);
+    }
+
+    public void requestSeek(int i) {
+        Message message = new Message();
+        message.arg1 = i;
+        message.what = WHAT_REQUEST_SEEK;
+        mServiceHandler.sendMessage(message);
+    }
+
+    public void requestPrepareAsync() {
+        mServiceHandler.sendEmptyMessage(WHAT_REQUEST_PREPARE_ASYNC);
     }
 
     public static void setUIHandler(Handler uiHandler) {
@@ -267,7 +295,7 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
 
     private void updateNotification() {
         mNotificationLayout.setViewVisibility(R.id.image_play, View.VISIBLE);
-        if (isPlaying()) {
+        if (!isPlaying()) {
             mNotificationLayout.setImageViewResource(R.id.image_play, R.drawable.ic_play_button_white);
             mBuilder.setOngoing(false);
             mBuilder.setContent(mNotificationLayout);
@@ -334,6 +362,14 @@ public class MyService extends Service implements MediaPlayerManager.OnLoadingTr
                     break;
                 case WHAT_REQUEST_PAUSE:
                     pause();
+                    break;
+                case WHAT_REQUEST_SEEK:
+                    seek(msg.arg1);
+                    break;
+                case WHAT_REQUEST_PREPARE_ASYNC:
+                    prepareAsync();
+                    break;
+                default:
                     break;
             }
         }
