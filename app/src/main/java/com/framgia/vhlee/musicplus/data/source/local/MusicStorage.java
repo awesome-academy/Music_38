@@ -44,7 +44,7 @@ public class MusicStorage extends AsyncTask<String, Void, List<Track>> {
                 MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ALBUM_ID};
         Cursor cursor = mContext.getContentResolver()
                 .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projections, null, null, null);
+                        projections, null, null, MediaStore.Audio.Media.DISPLAY_NAME);
         if (cursor == null) return null;
         while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID));

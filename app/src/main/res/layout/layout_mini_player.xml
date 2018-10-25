@@ -10,7 +10,8 @@
         android:layout_width="@dimen/dp_60"
         android:layout_height="@dimen/dp_60"
         android:padding="@dimen/dp_5"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@mipmap/ic_launcher"
+        android:transitionName="fromMini"/>
 
     <TextView
         android:id="@+id/text_song_name"

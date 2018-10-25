@@ -5,6 +5,7 @@
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:homeAsUpIndicator">@drawable/ic_back_arrow</item>
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="RoundedButton" parent="Base.Widget.AppCompat.Button">

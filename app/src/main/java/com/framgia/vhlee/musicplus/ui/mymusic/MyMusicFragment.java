@@ -73,7 +73,7 @@ public class MyMusicFragment extends Fragment
 
     @Override
     public void onDestroy() {
-        getActivity().unbindService(mConnection);
+        if (mService!= null) getActivity().unbindService(mConnection);
         super.onDestroy();
     }
 

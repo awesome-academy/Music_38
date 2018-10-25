@@ -1,6 +1,9 @@
 package com.framgia.vhlee.musicplus.ui;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.content.Intent;
+import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +19,8 @@ import com.framgia.vhlee.musicplus.util.Constants;
 import java.util.List;
 
 public class MiniPlayerClass implements View.OnClickListener {
+    private static final String TRANSITION_ARTWORK = "fromMini";
+    private static final int TOTAL = 1;
     private ImageView mPlayImage;
     private View mMiniPlayer;
     private TextView mTrackName;
@@ -58,7 +63,8 @@ public class MiniPlayerClass implements View.OnClickListener {
                 playSong();
                 break;
             default:
-                mActivity.startActivity(PlayActivity.getPlayActivityIntent(mActivity));
+                switchPlay();
+                break;
         }
     }
 
@@ -174,5 +180,14 @@ public class MiniPlayerClass implements View.OnClickListener {
             return;
         }
         mPlayImage.setVisibility(View.INVISIBLE);
+    }
+
+    private void switchPlay() {
+        Intent intent = new Intent(mActivity, PlayActivity.class);
+        Pair[] pairs = new Pair[TOTAL];
+        pairs[0] = new Pair<View, String>(mTrackImage, TRANSITION_ARTWORK);
+        ActivityOptions options =
+                ActivityOptions.makeSceneTransitionAnimation(mActivity, pairs);
+        mActivity.startActivity(intent, options.toBundle());
     }
 }
