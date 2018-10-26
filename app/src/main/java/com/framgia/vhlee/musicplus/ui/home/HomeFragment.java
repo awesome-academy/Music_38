@@ -1,8 +1,14 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
+import android.app.ActivityOptions;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +24,7 @@ import com.framgia.vhlee.musicplus.data.model.GenreKey;
 import com.framgia.vhlee.musicplus.data.model.GenreName;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.adapter.GenreAdapter;
 import com.framgia.vhlee.musicplus.ui.genres.GenresActivity;
 import com.framgia.vhlee.musicplus.util.StringUtil;
