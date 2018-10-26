@@ -1,6 +1,5 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +25,8 @@ import com.framgia.vhlee.musicplus.util.StringUtil;
 import java.util.List;
 
 public class HomeFragment extends Fragment
-        implements GenreAdapter.GenreClickListener, HomeContract.View {
+        implements View.OnClickListener,
+        GenreAdapter.GenreClickListener, HomeContract.View {
     private static final String ARTWORK_DEFAULT_SIZE = "large";
     private static final String ARTWORK_MAX_SIZE = "t500x500";
     private HomeContract.Presenter mPresenter;
@@ -107,17 +107,17 @@ public class HomeFragment extends Fragment
         String source = StringUtil.initGenreApi(GenreKey.ALL_MUSIC, 0);
         mPresenter.loadHighlight(source);
         mGenreAdapter.addGenre(new Genre(GenreKey.ALL_MUSIC,
-                GenreName.ALL_MUSIC, R.drawable.default_artwork));
+                GenreName.ALL_MUSIC, R.drawable.all_music));
         mGenreAdapter.addGenre(new Genre(GenreKey.ALL_AUDIO,
-                GenreName.ALL_MUSIC, R.drawable.default_artwork));
+                GenreName.ALL_AUDIO, R.drawable.all_audio));
         mGenreAdapter.addGenre(new Genre(GenreKey.ALTERNATIVE,
-                GenreName.ALTERNATIVE, R.drawable.default_artwork));
+                GenreName.ALTERNATIVE, R.drawable.rock));
         mGenreAdapter.addGenre(new Genre(GenreKey.AMBIENT,
-                GenreName.AMBIENT, R.drawable.default_artwork));
+                GenreName.AMBIENT, R.drawable.ambient));
         mGenreAdapter.addGenre(new Genre(GenreKey.CLASSICAL,
-                GenreName.CLASSICAL, R.drawable.default_artwork));
+                GenreName.CLASSICAL, R.drawable.classical));
         mGenreAdapter.addGenre(new Genre(GenreKey.COUNTRY,
-                GenreName.COUNTRY, R.drawable.default_artwork));
+                GenreName.COUNTRY, R.drawable.country));
     }
 
     /**
@@ -133,5 +133,15 @@ public class HomeFragment extends Fragment
                 .load(source)
                 .apply(requestOptions)
                 .into(image);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.image_cover:
+                break;
+            default:
+                break;
+        }
     }
 }

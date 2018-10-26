@@ -22,4 +22,9 @@
     <string name="title_now_playing">Now playing</string>
     <string name="text_pause">Pause</string>
     <string name="hint_search">Search something...</string>
+    <string name="notify_file_exists">Song already exists</string>
+    <string name="notify_confirm_download">Do you want to continue download?</string>
+    <string name="confirm_yes">Yes</string>
+    <string name="confirm_no">No</string>
+    <string name="error_download">Sorry, the song cant download now</string>
 </resources>

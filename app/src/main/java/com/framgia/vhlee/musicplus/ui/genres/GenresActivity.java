@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
@@ -26,6 +27,7 @@ import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
+import com.framgia.vhlee.musicplus.ui.search.SearchActivity;
 import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
@@ -98,8 +100,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_genres);
-        String title = null;
-        initToolbar(title);
+        initToolbar();
         initView();
         initViewLoadMore();
         initData();
@@ -120,10 +121,15 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_search) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+            default:
+                super.onBackPressed();
+                break;
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
@@ -215,13 +221,13 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
-    private void initToolbar(String title) {
+    private void initToolbar() {
+        Intent intent = getIntent();
+        Genre genres = (Genre) intent.getSerializableExtra(Constants.EXTRA_GENRES);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        if (title == null || title.isEmpty()) {
-            setTitle(getString(R.string.default_toolbar_title));
-        } else {
-            setTitle(title);
-        }
+        setTitle(genres.getName());
+        ImageView imageCover = findViewById(R.id.image_collapse);
+        imageCover.setImageResource(genres.getPhoto());
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
