@@ -35,4 +35,12 @@ public class StringUtil {
     public static String initDownloadApi(String url) {
         return StringUtil.append(url, Constants.PARAMETER_ID, BuildConfig.CLIENT_ID);
     }
+
+    public static String initSearchApi(String keyword, int offset) {
+        return StringUtil.append(Constants.BASE_URL_TRACK,
+                Constants.PARAMETER_ID, BuildConfig.CLIENT_ID,
+                Constants.PARAMETER_SEARCH, keyword,
+                Constants.PARAMETER_LIMIT, String.valueOf(Constants.LIMIT),
+                Constants.PARAMETER_OFFSET, String.valueOf(offset));
+    }
 }

@@ -19,5 +19,7 @@ public interface TrackDataSource {
 
     interface Remote extends TrackDataSource {
         void getTracks(String api, DataCallback<Track> callback);
+
+        void searchTracks(String api, DataCallback<Track> callback);
     }
 }
