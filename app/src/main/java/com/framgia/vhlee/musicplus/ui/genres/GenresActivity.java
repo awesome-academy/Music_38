@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -33,7 +34,8 @@ import java.util.List;
 
 
 public class GenresActivity extends LoadMoreAbstract implements GenresContract.View,
-        TrackAdapter.OnClickItemSongListener, View.OnClickListener {
+        TrackAdapter.OnClickItemSongListener, View.OnClickListener,
+        SwipeRefreshLayout.OnRefreshListener {
     private int mOffset;
     private TrackAdapter mAdapter;
     private List<Track> mTracks;
@@ -42,6 +44,8 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     private MiniPlayerClass mMiniPlayerClass;
     private String mGenreKey;
     private String mGenreApi;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -126,6 +130,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     public void onLoadTracksSuccess(List<Track> tracks) {
         if (mOffset == 0) {
             mAdapter.updateTracks(tracks);
+            mSwipeRefreshLayout.setRefreshing(false);
         } else {
             mAdapter.addTracks(tracks);
             mProgressBar.setVisibility(View.GONE);
@@ -145,6 +150,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     public void onLoadTracksFail(String message) {
         Toast.makeText(GenresActivity.this, message, Toast.LENGTH_SHORT).show();
         mProgressBar.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -152,6 +158,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         mService.setTracks(mTracks);
         mService.requestCreate(position);
     }
+
 
     @Override
     public void showDialodFeatureTrack(int position) {
@@ -192,9 +199,20 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         setLoadMore();
     }
 
+    @Override
+    public void onRefresh() {
+        if (mGenreKey != null && !mGenreKey.isEmpty()) {
+            mOffset = 0;
+            String api = StringUtil.initGenreApi(mGenreKey, mOffset);
+            mPresenter.getTracks(api);
+        }
+    }
+
     private void initView() {
         mPresenter = new GenresPresenter(this);
         mMiniPlayerClass = new MiniPlayerClass(this);
+        mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     private void initToolbar(String title) {

@@ -15,11 +15,14 @@ import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.util.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder> {
     private List<Track> mTracks;
     private OnClickItemSongListener mListener;
+    private OnDragDropListener mDragDropListener;
+    private boolean mIsNowPlaying;
 
     public TrackAdapter(OnClickItemSongListener listener) {
         mTracks = new ArrayList<>();
@@ -29,6 +32,12 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
     public TrackAdapter(List<Track> tracks, OnClickItemSongListener listener) {
         mTracks = tracks;
         mListener = listener;
+    }
+
+    public TrackAdapter(List<Track> tracks, OnClickItemSongListener listener, OnDragDropListener dragDropListener) {
+        mTracks = tracks;
+        mListener = listener;
+        mDragDropListener = dragDropListener;
     }
 
     @NonNull
@@ -44,6 +53,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         myViewHolder.bindData(i, mListener);
     }
 
+
     @Override
     public int getItemCount() {
         return mTracks != null ? mTracks.size() : 0;
@@ -56,7 +66,6 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         private ImageView mFeature;
         private ImageView mAddNowPlaying;
         private OnClickItemSongListener mListener;
-        private int mPosition;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -65,6 +74,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mSingerName = itemView.findViewById(R.id.text_singer_name);
             mFeature = itemView.findViewById(R.id.image_feature);
             mAddNowPlaying = itemView.findViewById(R.id.image_add_now_play);
+            if (mIsNowPlaying) mAddNowPlaying.setVisibility(View.GONE);
         }
 
         public void bindData(final int position, final OnClickItemSongListener listener) {
@@ -72,7 +82,6 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mSingerName.setText(mTracks.get(position).getArtist());
             setImage(mTrackImage, mTracks.get(position).getArtworkUrl());
             mListener = listener;
-            mPosition = position;
             itemView.setOnClickListener(this);
             mFeature.setOnClickListener(this);
         }
@@ -81,10 +90,10 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.image_feature:
-                    mListener.showDialodFeatureTrack(mPosition);
+                    mListener.showDialodFeatureTrack(getAdapterPosition());
                     break;
                 default:
-                    mListener.clickItemSongListener(mPosition);
+                    mListener.clickItemSongListener(getAdapterPosition());
             }
         }
 
@@ -113,9 +122,40 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
         }
     }
 
+    public void onMove(int oldPosition, int newPosition) {
+        if (oldPosition < newPosition) {
+            for (int i = oldPosition; i < newPosition; i++) {
+                Collections.swap(mTracks, i, i + Constants.INDEX_UNIT);
+            }
+        } else {
+            for (int i = oldPosition; i > newPosition; i--) {
+                Collections.swap(mTracks, i, i - Constants.INDEX_UNIT);
+            }
+        }
+        notifyItemMoved(oldPosition, newPosition);
+        mDragDropListener.onDropViewHolder(mTracks);
+    }
+
+    public void swipe(int position, int direction) {
+        mTracks.remove(position);
+        notifyItemRemoved(position);
+        mDragDropListener.onSwipeViewHolder(mTracks);
+    }
+
+    public TrackAdapter setNowPlaying(boolean nowPlaying) {
+        mIsNowPlaying = nowPlaying;
+        return this;
+    }
+
     public interface OnClickItemSongListener {
         void clickItemSongListener(int position);
 
         void showDialodFeatureTrack(int position);
+    }
+
+    public interface OnDragDropListener {
+        void onDropViewHolder(List<Track> tracks);
+
+        void onSwipeViewHolder(List<Track> tracks);
     }
 }
