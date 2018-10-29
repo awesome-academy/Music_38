@@ -23,6 +23,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
     private OnClickItemSongListener mListener;
     private OnDragDropListener mDragDropListener;
     private boolean mIsNowPlaying;
+    private boolean mIsRecentTracks;
 
     public TrackAdapter(OnClickItemSongListener listener) {
         mTracks = new ArrayList<>();
@@ -75,6 +76,10 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mFeature = itemView.findViewById(R.id.image_feature);
             mAddNowPlaying = itemView.findViewById(R.id.image_add_now_play);
             if (mIsNowPlaying) mAddNowPlaying.setVisibility(View.GONE);
+            if (mIsRecentTracks || mIsNowPlaying) {
+                mAddNowPlaying.setVisibility(View.GONE);
+                mFeature.setVisibility(View.GONE);
+            }
         }
 
         public void bindData(final int position, final OnClickItemSongListener listener) {
@@ -144,6 +149,11 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
 
     public TrackAdapter setNowPlaying(boolean nowPlaying) {
         mIsNowPlaying = nowPlaying;
+        return this;
+    }
+
+    public TrackAdapter setRecentTracks(boolean recentTracks) {
+        mIsRecentTracks = recentTracks;
         return this;
     }
 

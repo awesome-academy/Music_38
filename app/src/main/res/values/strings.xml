@@ -6,7 +6,7 @@
     <string name="title_genres">Genres</string>
     <string name="title_recent">Recent</string>
     <string name="default_name">No name</string>
-    <string name="shuffle_play">SHUFFLE PLAY</string>
+    <string name="go_favorite">MY FAVORITIES</string>
     <string name="default_song_name">Song name</string>
     <string name="default_singer">Singer</string>
     <string name="default_toolbar_title">List Tracks</string>
@@ -27,4 +27,9 @@
     <string name="confirm_yes">Yes</string>
     <string name="confirm_no">No</string>
     <string name="error_download">Sorry, the song cant download now</string>
+    <string name="text_favorite">Favorite</string>
+    <string name="string_favorites">Favorites</string>
+    <string name="text_delete_success">Delete sucess</string>
+    <string name="text_add_success">Add successfully</string>
+    <string name="text_music_offline">Music offline</string>
 </resources>

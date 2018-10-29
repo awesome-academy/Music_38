@@ -8,6 +8,7 @@ import android.net.Uri;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.ui.adapter.MediaPlayerListener;
 import com.framgia.vhlee.musicplus.util.Constants;
+import com.framgia.vhlee.musicplus.util.MySharedPreferences;
 
 import java.io.IOException;
 import java.util.List;
@@ -94,6 +95,10 @@ public class MediaPlayerManager extends MediaPlayerSetting
             mMediaPlayer.start();
             mStatus = StatusPlayerType.STARTED;
             mListener.onLoadingSuccess();
+            Track track = mTracks.get(mCurrentIndex);
+            if (!track.isOffline()) {
+                saveRecentTrack();
+            }
         }
     }
 
@@ -241,5 +246,11 @@ public class MediaPlayerManager extends MediaPlayerSetting
         Random r = new Random();
         result = r.nextInt((maxSong - currentSong + NUMBER_1) + currentSong) - currentSong;
         return result;
+    }
+
+    private void saveRecentTrack() {
+        long idTrack = mTracks.get(mCurrentIndex).getId();
+        MySharedPreferences sharedPreferences = new MySharedPreferences(mContext);
+        sharedPreferences.addData(idTrack);
     }
 }

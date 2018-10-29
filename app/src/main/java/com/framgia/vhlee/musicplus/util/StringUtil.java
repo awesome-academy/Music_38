@@ -19,10 +19,10 @@ public class StringUtil {
                 Constants.PARAMETER_OFFSET, String.valueOf(offset));
     }
 
-    public static String initDetailApi(int trackId) {
+    public static String initDetailApi(long trackId) {
         return StringUtil.append(Constants.BASE_URL_TRACK, Constants.SPLASH,
-                String.valueOf(trackId), Constants.SPLASH,
-                Constants.CLIENT_ID);
+                String.valueOf(trackId), Constants.QUESTION_MARK,
+                Constants.CLIENT_ID, BuildConfig.CLIENT_ID);
     }
 
     public static String initStreamApi(long trackId) {

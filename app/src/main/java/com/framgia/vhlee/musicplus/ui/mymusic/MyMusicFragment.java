@@ -7,19 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +29,6 @@ import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -73,7 +69,7 @@ public class MyMusicFragment extends Fragment
 
     @Override
     public void onDestroy() {
-        if (mService!= null) getActivity().unbindService(mConnection);
+        if (mService != null) getActivity().unbindService(mConnection);
         super.onDestroy();
     }
 
@@ -114,15 +110,17 @@ public class MyMusicFragment extends Fragment
     public void onSuccess(List<Track> tracks) {
         mAdapter.updateTracks(tracks);
         mTracks = tracks;
-        Intent serviceIntent = MyService.getMyServiceIntent(getActivity());
-        if (mService == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                getActivity().startForegroundService(serviceIntent);
-            } else {
-                getActivity().startService(serviceIntent);
+        if (getContext() != null) {
+            Intent serviceIntent = MyService.getMyServiceIntent(getActivity());
+            if (mService == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    getActivity().startForegroundService(serviceIntent);
+                } else {
+                    getActivity().startService(serviceIntent);
+                }
             }
+            getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
         }
-        getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
     }
 
     @Override

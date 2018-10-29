@@ -21,5 +21,7 @@ public interface TrackDataSource {
         void getTracks(String api, DataCallback<Track> callback);
 
         void searchTracks(String api, DataCallback<Track> callback);
+
+        void getDetailTrack(String api, DataCallback<Track> callback);
     }
 }

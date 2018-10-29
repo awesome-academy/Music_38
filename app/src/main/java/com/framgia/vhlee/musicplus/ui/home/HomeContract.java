@@ -8,7 +8,7 @@ public interface HomeContract {
     interface Presenter {
         void loadHighlight(String url);
 
-        void loadRecent();
+        void loadRecent(String url);
     }
 
     interface View {
@@ -17,5 +17,7 @@ public interface HomeContract {
         void showNoHighlight(String message);
 
         void showRecent(List<Track> tracks);
+
+        void showRecentFail(String message);
     }
 }
