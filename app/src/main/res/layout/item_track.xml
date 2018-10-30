@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/dp_1"
-    android:background="@color/black_transparent">
+    android:background="@android:color/white">
 
     <ImageView
         android:id="@+id/image_track"
@@ -22,7 +22,6 @@
         android:paddingTop="@dimen/dp_5"
         android:singleLine="true"
         android:text="@string/default_song_name"
-        android:textColor="@color/color_white"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/image_add_now_play"
         app:layout_constraintStart_toEndOf="@id/image_track"
@@ -37,7 +36,6 @@
         android:paddingBottom="@dimen/dp_7"
         android:singleLine="true"
         android:text="@string/default_singer"
-        android:textColor="@color/color_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/image_add_now_play"
         app:layout_constraintStart_toEndOf="@id/image_track"

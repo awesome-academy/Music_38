@@ -32,4 +32,12 @@
     <string name="text_delete_success">Delete sucess</string>
     <string name="text_add_success">Add successfully</string>
     <string name="text_music_offline">Music offline</string>
+    <string name="framgia">Framgia</string>
+    <string name="we_make_it_awesome">We make it awesome</string>
+    <string name="user_name">Username</string>
+    <string name="pass_word">Password</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign up</string>
+    <string name="toast_login_success">Login Successfully</string>
+    <string name="toast_login_failed">Login Failed</string>
 </resources>

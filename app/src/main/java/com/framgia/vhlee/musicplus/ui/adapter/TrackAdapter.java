@@ -1,5 +1,6 @@
 package com.framgia.vhlee.musicplus.ui.adapter;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -75,11 +76,18 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.MyViewHolder
             mSingerName = itemView.findViewById(R.id.text_singer_name);
             mFeature = itemView.findViewById(R.id.image_feature);
             mAddNowPlaying = itemView.findViewById(R.id.image_add_now_play);
-            if (mIsNowPlaying) mAddNowPlaying.setVisibility(View.GONE);
+            if (mIsNowPlaying) updateItem();
             if (mIsRecentTracks || mIsNowPlaying) {
                 mAddNowPlaying.setVisibility(View.GONE);
                 mFeature.setVisibility(View.GONE);
             }
+        }
+
+        private void updateItem() {
+            mAddNowPlaying.setVisibility(View.GONE);
+            mTrackName.setTextColor(Color.WHITE);
+            mSingerName.setTextColor(Color.WHITE);
+            itemView.setBackgroundColor(itemView.getResources().getColor(R.color.black_transparent));
         }
 
         public void bindData(final int position, final OnClickItemSongListener listener) {
