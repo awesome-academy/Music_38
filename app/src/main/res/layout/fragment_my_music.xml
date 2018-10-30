@@ -4,21 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_primary"
     tools:context=".ui.mymusic.MyMusicFragment">
-
-    <Button
-        android:id="@+id/button_offline"
-        style="@style/RoundedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/dp_30"
-        android:text="@string/text_music_offline"
-        app:layout_constraintBottom_toTopOf="@id/view_offline"
-        app:layout_constraintHorizontal_bias="0.07"
-        app:layout_constraintLeft_toLeftOf="@id/view_offline"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/view_offline"
-        app:layout_constraintVertical_bias="0.4" />
 
     <View
         android:id="@+id/view_offline"
@@ -30,11 +16,29 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/button_offline"
+        style="@style/RoundedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_30"
+        android:text="@string/text_music_offline"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/view_offline"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintLeft_toLeftOf="@id/view_offline"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/view_offline"
+        app:layout_constraintVertical_bias="0.4" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_offline"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/dp_5"
         android:layout_marginTop="@dimen/dp_25"
+        android:layout_marginRight="@dimen/dp_5"
+        android:layout_marginBottom="@dimen/dp_5"
+        android:background="@color/white_transparent"
         android:orientation="vertical"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/mini_player"

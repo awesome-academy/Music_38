@@ -18,11 +18,11 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/dp_15"
             android:layout_marginBottom="@dimen/dp_15"
-            android:background="@drawable/rounded_button_style"
+            android:background="@drawable/background_color_outline"
             android:paddingStart="@dimen/dp_30"
             android:paddingEnd="@dimen/dp_30"
             android:text="@string/title_now_playing"
-            android:textColor="@color/color_accent" />
+            android:textColor="@color/color_primary" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_now_playing"

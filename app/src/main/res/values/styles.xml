@@ -8,7 +8,7 @@
         <item name="android:windowActivityTransitions">true</item>
     </style>
 
-    <style name="RoundedButton" parent="Base.Widget.AppCompat.Button">
+    <style name="RoundedButton" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@drawable/rounded_button_style</item>
         <item name="android:drawableEnd">@drawable/ic_view_more</item>
         <item name="android:paddingLeft">@dimen/dp_10</item>
@@ -22,7 +22,7 @@
         <item name="android:layout_marginLeft">@dimen/dp_5</item>
         <item name="android:layout_marginRight">@dimen/dp_5</item>
         <item name="android:layout_marginTop">@dimen/dp_30</item>
-        <item name="android:background">@color/white_transparent</item>
+        <item name="android:background">@drawable/background_color_outline</item>
     </style>
 
     <style name="ListTrackTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
