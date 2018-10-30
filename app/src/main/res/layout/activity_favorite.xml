@@ -4,8 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_primary"
     tools:context=".ui.favorite.FavoriteActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tool_bar_favorite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_primary_dark"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextColor="@android:color/white" />
+
+    <View
+        android:id="@+id/view_favorite"
+        style="@style/ViewTransparentWhite"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tool_bar_favorite" />
 
     <Button
         android:id="@+id/button_favorite"
@@ -21,21 +38,14 @@
         app:layout_constraintTop_toTopOf="@id/view_favorite"
         app:layout_constraintVertical_bias="0.4" />
 
-    <View
-        android:id="@+id/view_favorite"
-        style="@style/ViewTransparentWhite"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_favorite"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/dp_5"
         android:layout_marginTop="@dimen/dp_25"
+        android:layout_marginRight="@dimen/dp_5"
+        android:layout_marginBottom="@dimen/dp_5"
         android:orientation="vertical"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/mini_player"

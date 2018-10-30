@@ -10,6 +10,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
@@ -21,6 +24,7 @@ import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.ui.search.SearchActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,8 +122,31 @@ public class FavoriteActivity extends AppCompatActivity
         unbindService(mConnection);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_genres, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+            default:
+                super.onBackPressed();
+                break;
+        }
+        return true;
+    }
+
     private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.tool_bar_favorite);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.string_favorites);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void initData() {

@@ -13,6 +13,9 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.home.HomeFragment;
 import com.framgia.vhlee.musicplus.ui.mymusic.MyMusicFragment;
+import com.framgia.vhlee.musicplus.ui.search.SearchActivity;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -106,6 +110,24 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_genres, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
     /**
      * Navigation: item click event
      *
@@ -130,6 +152,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initUI() {
+        Toolbar toolbar = findViewById(R.id.tool_bar_main);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         BottomNavigationView bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(this);
         mMiniPlayerClass = new MiniPlayerClass(this);

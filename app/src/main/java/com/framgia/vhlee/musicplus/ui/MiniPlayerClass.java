@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,6 +22,7 @@ import java.util.List;
 public class MiniPlayerClass implements View.OnClickListener {
     private static final String TRANSITION_ARTWORK = "fromMini";
     private static final int TOTAL = 1;
+    private ProgressBar mProgressWaiting;
     private ImageView mPlayImage;
     private View mMiniPlayer;
     private TextView mTrackName;
@@ -38,6 +40,7 @@ public class MiniPlayerClass implements View.OnClickListener {
 
     private void initView() {
         mMiniPlayer = mActivity.findViewById(R.id.mini_player);
+        mProgressWaiting = mActivity.findViewById(R.id.progress_waiting);
         mPlayImage = mActivity.findViewById(R.id.image_play_song);
         mTrackName = mActivity.findViewById(R.id.text_song_name);
         mTrackSinger = mActivity.findViewById(R.id.text_singer_name);
@@ -107,13 +110,15 @@ public class MiniPlayerClass implements View.OnClickListener {
 
     public void loadingSuccess() {
         mMiniPlayer.setVisibility(View.VISIBLE);
-        mPlayImage.setVisibility(View.VISIBLE);
-        mPlayImage.setImageResource(R.drawable.pause);
+        mPlayImage.setClickable(true);
+        mProgressWaiting.setVisibility(View.GONE);
+        mPlayImage.setImageResource(R.drawable.ic_pause);
         mMiniPlayer.setClickable(true);
     }
 
     public void startLoading(int index) {
-        mPlayImage.setVisibility(View.INVISIBLE);
+        mPlayImage.setClickable(false);
+        mProgressWaiting.setVisibility(View.VISIBLE);
         mMiniPlayer.setVisibility(View.VISIBLE);
         Track track = mService.getTracks().get(index);
         mTrackSinger.setText(track.getArtist());
@@ -138,34 +143,34 @@ public class MiniPlayerClass implements View.OnClickListener {
                     .into(mTrackImage);
         }
         if (mService.isPlaying()) {
-            mPlayImage.setImageResource(R.drawable.pause);
+            mPlayImage.setImageResource(R.drawable.ic_pause);
             return;
         }
-        mPlayImage.setImageResource(R.drawable.play_button);
+        mPlayImage.setImageResource(R.drawable.ic_play);
         int status = mService.getMediaPlayerManager().getStatus();
         if (status == PlayMusicInterface.StatusPlayerType.STOPPED
                 || status == PlayMusicInterface.StatusPlayerType.PAUSED) {
-            setVisiblePlayImage(true);
+            setClickablePlayImage(true);
             return;
         }
-        setVisiblePlayImage(false);
+        setClickablePlayImage(false);
     }
 
     public void pause() {
-        mPlayImage.setImageResource(R.drawable.play_button);
+        mPlayImage.setImageResource(R.drawable.ic_play);
     }
 
     public void stop() {
-        mPlayImage.setImageResource(R.drawable.play_button);
+        mPlayImage.setImageResource(R.drawable.ic_play);
     }
 
     private void playSong() {
         if (mService.isPlaying()) {
             mService.requestPause();
-            mPlayImage.setImageResource(R.drawable.play_button);
+            mPlayImage.setImageResource(R.drawable.ic_play);
             return;
         }
-        mPlayImage.setImageResource(R.drawable.pause);
+        mPlayImage.setImageResource(R.drawable.ic_pause);
         int mediaStatus = mService.getMediaPlayerManager().getStatus();
         if (mediaStatus == PlayMusicInterface.StatusPlayerType.STOPPED) {
             mService.requestPrepareAsync();
@@ -174,12 +179,12 @@ public class MiniPlayerClass implements View.OnClickListener {
         mService.requestStart();
     }
 
-    private void setVisiblePlayImage(boolean isVisible) {
+    private void setClickablePlayImage(boolean isVisible) {
         if (isVisible) {
-            mPlayImage.setVisibility(View.VISIBLE);
+            mPlayImage.setClickable(true);
             return;
         }
-        mPlayImage.setVisibility(View.INVISIBLE);
+        mPlayImage.setClickable(false);
     }
 
     private void switchPlay() {

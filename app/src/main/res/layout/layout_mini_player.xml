@@ -11,7 +11,7 @@
         android:layout_height="@dimen/dp_60"
         android:padding="@dimen/dp_5"
         android:src="@mipmap/ic_launcher"
-        android:transitionName="fromMini"/>
+        android:transitionName="fromMini" />
 
     <TextView
         android:id="@+id/text_song_name"
@@ -21,7 +21,7 @@
         android:paddingTop="@dimen/dp_5"
         android:singleLine="true"
         android:text="@string/default_song_name"
-        android:textColor="@color/background_genres"
+        android:textColor="@color/color_primary_dark"
         android:textSize="@dimen/dp_18"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/image_previous_song"
@@ -33,11 +33,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/dp_10"
-        android:paddingBottom="@dimen/dp_7"
         android:paddingTop="@dimen/dp_5"
+        android:paddingBottom="@dimen/dp_7"
         android:singleLine="true"
         android:text="@string/default_singer"
-        android:textColor="@color/background_genres"
+        android:textColor="@color/color_primary"
         android:textSize="@dimen/dp_14"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/image_previous_song"
@@ -46,8 +46,8 @@
 
     <ImageView
         android:id="@+id/image_next_song"
-        android:layout_width="@dimen/dp_30"
-        android:layout_height="@dimen/dp_30"
+        android:layout_width="@dimen/dp_20"
+        android:layout_height="@dimen/dp_20"
         android:layout_marginEnd="@dimen/dp_15"
         android:src="@drawable/ic_next"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -59,15 +59,26 @@
         android:layout_width="@dimen/dp_30"
         android:layout_height="@dimen/dp_30"
         android:layout_marginEnd="@dimen/dp_15"
-        android:src="@drawable/play_button"
+        android:src="@drawable/ic_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/image_next_song"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/progress_waiting"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/image_play_song"
+        app:layout_constraintEnd_toEndOf="@id/image_play_song"
+        app:layout_constraintStart_toStartOf="@id/image_play_song"
+        app:layout_constraintTop_toTopOf="@id/image_play_song" />
+
     <ImageView
         android:id="@+id/image_previous_song"
-        android:layout_width="@dimen/dp_30"
-        android:layout_height="@dimen/dp_30"
+        android:layout_width="@dimen/dp_20"
+        android:layout_height="@dimen/dp_20"
         android:layout_marginEnd="@dimen/dp_15"
         android:src="@drawable/ic_previous"
         app:layout_constraintBottom_toBottomOf="parent"
