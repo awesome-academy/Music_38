@@ -1,18 +1,18 @@
 package com.framgia.vhlee.musicplus.ui.search;
 
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
 import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
 
 import java.util.List;
 
 public class SearchPresenter implements SearchContract.Presenter {
     private SearchContract.View mView;
-    private TrackDataRepository mRepository;
+    private TrackRepository mRepository;
 
-    public SearchPresenter(SearchContract.View view) {
+    public SearchPresenter(TrackRepository repository, SearchContract.View view) {
         mView = view;
-        mRepository = TrackDataRepository.getsInstance();
+        mRepository = repository;
     }
 
     @Override

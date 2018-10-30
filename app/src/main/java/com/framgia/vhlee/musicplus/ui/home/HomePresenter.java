@@ -1,16 +1,16 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
 import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
 
 import java.util.List;
 
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
-    private TrackDataRepository mRepository;
+    private TrackRepository mRepository;
 
-    public HomePresenter(HomeContract.View view, TrackDataRepository repository) {
+    public HomePresenter(TrackRepository repository, HomeContract.View view) {
         mView = view;
         mRepository = repository;
     }
@@ -41,6 +41,21 @@ public class HomePresenter implements HomeContract.Presenter {
             @Override
             public void onFail(String mesage) {
                 mView.showRecentFail(mesage);
+            }
+        });
+    }
+
+    @Override
+    public void getRecentTrack() {
+        mRepository.getRecentTrack(new TrackDataSource.DataCallback<Long>() {
+            @Override
+            public void onSuccess(List<Long> datas) {
+                mView.getRecentTrackIds(datas);
+            }
+
+            @Override
+            public void onFail(String mesage) {
+
             }
         });
     }

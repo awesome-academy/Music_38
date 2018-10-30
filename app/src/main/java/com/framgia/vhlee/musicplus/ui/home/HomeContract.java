@@ -9,6 +9,8 @@ public interface HomeContract {
         void loadHighlight(String url);
 
         void loadRecent(String url);
+
+        void getRecentTrack();
     }
 
     interface View {
@@ -19,5 +21,7 @@ public interface HomeContract {
         void showRecent(List<Track> tracks);
 
         void showRecentFail(String message);
+
+        void getRecentTrackIds(List<Long> result);
     }
 }

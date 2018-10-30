@@ -3,12 +3,14 @@ package com.framgia.vhlee.musicplus.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MySharedPreferences {
     private static final String PREFERENCES_NAME = "SharedPreferences";
     private static final int INDEX_0 = 0;
     private static final int INDEX_1 = 1;
     private static final int INDEX_2 = 2;
-    private static final int NUMBER_OF_SAVED_TRACKS = 3;
     private static final String KEY_TRACK_1 = "key_track_1";
     private static final String KEY_TRACK_2 = "key_track_2";
     private static final String KEY_TRACK_3 = "key_track_3";
@@ -26,11 +28,11 @@ public class MySharedPreferences {
         putData(KEY_TRACK_1, idTrack);
     }
 
-    public long[] getData() {
-        long[] result = new long[NUMBER_OF_SAVED_TRACKS];
-        result[INDEX_0] = getData(KEY_TRACK_1);
-        result[INDEX_1] = getData(KEY_TRACK_2);
-        result[INDEX_2] = getData(KEY_TRACK_3);
+    public List<Long> getData() {
+        List<Long> result = new ArrayList<>();
+        result.add(INDEX_0, getData(KEY_TRACK_1));
+        result.add(INDEX_1, getData(KEY_TRACK_2));
+        result.add(INDEX_2, getData(KEY_TRACK_3));
         return result;
     }
 

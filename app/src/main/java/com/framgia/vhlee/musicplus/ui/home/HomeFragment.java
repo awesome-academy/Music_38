@@ -1,8 +1,5 @@
 package com.framgia.vhlee.musicplus.ui.home;
 
-import android.app.ActivityOptions;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -10,7 +7,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +21,9 @@ import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.GenreKey;
 import com.framgia.vhlee.musicplus.data.model.GenreName;
 import com.framgia.vhlee.musicplus.data.model.Track;
-import com.framgia.vhlee.musicplus.data.repository.TrackDataRepository;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.adapter.GenreAdapter;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
@@ -59,7 +57,6 @@ public class HomeFragment extends Fragment
     private List<Track> mTracks;
     private static MyService mService;
     private TrackAdapter mAdapter;
-    private MySharedPreferences mPreferences;
     private RecyclerView mRecyclerRecent;
     private List<Track> mHighLightTrack;
     private View mViewHighlight;
@@ -117,12 +114,7 @@ public class HomeFragment extends Fragment
     }
 
     private void getRecentTrack() {
-        mPreferences = new MySharedPreferences(getActivity());
-        long[] idRecentTracks = mPreferences.getData();
-        for (int i = 0; i < idRecentTracks.length; i++) {
-            String api = StringUtil.initDetailApi(idRecentTracks[i]);
-            mPresenter.loadRecent(api);
-        }
+        mPresenter.getRecentTrack();
     }
 
     public static HomeFragment newInstance() {
@@ -173,6 +165,16 @@ public class HomeFragment extends Fragment
 
     }
 
+    @Override
+    public void getRecentTrackIds(List<Long> result) {
+        if (getActivity() != null) {
+            for (int i = 0; i < result.size(); i++) {
+                String api = StringUtil.initDetailApi(result.get(i).longValue());
+                mPresenter.loadRecent(api);
+            }
+        }
+    }
+
     /**
      * Click listener
      *
@@ -184,8 +186,7 @@ public class HomeFragment extends Fragment
     }
 
     private void initUI(View view) {
-        TrackDataRepository repository = TrackDataRepository.getsInstance();
-        mPresenter = new HomePresenter(this, repository);
+        initPresenter();
         mImageCover = view.findViewById(R.id.image_cover);
         mImageAvatar = view.findViewById(R.id.image_artwork);
         mTextTitle = view.findViewById(R.id.text_title_highlight);
@@ -197,6 +198,15 @@ public class HomeFragment extends Fragment
         initRecycler(recyclerGenres);
         mRecyclerRecent = view.findViewById(R.id.recycler_recent);
         initData();
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(getContext())
+        );
+        mPresenter = new HomePresenter(repository, this);
+
     }
 
     private void initRecyclerRecent() {

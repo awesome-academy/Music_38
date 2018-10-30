@@ -21,6 +21,9 @@ import android.widget.Toast;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Genre;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
@@ -215,10 +218,18 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     }
 
     private void initView() {
-        mPresenter = new GenresPresenter(this);
+        initPresenter();
         mMiniPlayerClass = new MiniPlayerClass(this);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(getApplicationContext())
+        );
+        mPresenter = new GenresPresenter(repository,this);
     }
 
     private void initToolbar() {
