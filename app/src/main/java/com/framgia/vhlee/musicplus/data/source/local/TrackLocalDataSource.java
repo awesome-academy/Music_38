@@ -5,7 +5,6 @@ import android.content.Context;
 import com.framgia.vhlee.musicplus.data.model.Track;
 import com.framgia.vhlee.musicplus.data.source.TrackDataSource;
 import com.framgia.vhlee.musicplus.util.MySharedPreferences;
-import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.util.List;
 

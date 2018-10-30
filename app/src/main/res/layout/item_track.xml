@@ -23,7 +23,7 @@
         android:singleLine="true"
         android:text="@string/default_song_name"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@id/image_add_now_play"
+        app:layout_constraintEnd_toStartOf="@id/image_delete_favorite"
         app:layout_constraintStart_toEndOf="@id/image_track"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,12 +32,13 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginLeft="@dimen/dp_10"
         android:paddingTop="@dimen/dp_5"
         android:paddingBottom="@dimen/dp_7"
         android:singleLine="true"
         android:text="@string/default_singer"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/image_add_now_play"
+        app:layout_constraintEnd_toStartOf="@id/image_delete_favorite"
         app:layout_constraintStart_toEndOf="@id/image_track"
         app:layout_constraintTop_toBottomOf="@id/text_song_name" />
 
@@ -59,5 +60,17 @@
         android:src="@drawable/add_song"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/image_feature"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_delete_favorite"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        android:layout_marginLeft="@dimen/dp_7"
+        android:layout_marginRight="@dimen/dp_20"
+        android:src="@drawable/ic_delete_white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/image_add_now_play"
         app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

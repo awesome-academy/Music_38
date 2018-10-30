@@ -29,7 +29,6 @@ import com.framgia.vhlee.musicplus.ui.adapter.GenreAdapter;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.genres.GenresActivity;
 import com.framgia.vhlee.musicplus.util.Constants;
-import com.framgia.vhlee.musicplus.util.MySharedPreferences;
 import com.framgia.vhlee.musicplus.util.StringUtil;
 
 import java.util.ArrayList;

@@ -30,6 +30,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 import com.framgia.vhlee.musicplus.mediaplayer.MediaPlayerSetting;
 import com.framgia.vhlee.musicplus.mediaplayer.PlayMusicInterface;
 import com.framgia.vhlee.musicplus.service.DownloadService;
@@ -48,7 +51,7 @@ import java.util.List;
 public class PlayActivity extends AppCompatActivity implements View.OnClickListener,
         SeekBar.OnSeekBarChangeListener, ServiceConnection, TrackAdapter.OnClickItemSongListener,
         SimpleItemTouchHelperCallback.ItemTouchListenner, TrackAdapter.OnDragDropListener,
-        DialogInterface.OnClickListener {
+        DialogInterface.OnClickListener, PlayContract.View {
     private static final long MESSAGE_UPDATE_DELAY = 1000;
     private static final int REQUEST_PERMISSION = 10;
     private static final int WHAT_UPDATE_FOLLOWING_SERVICE = 1234;
@@ -73,10 +76,12 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView mImagePrevious;
     private ImageView mImageNext;
     private ImageView mImagePlay;
+    private ImageView mImageFavourite;
     private boolean mIsBoundService;
     private Track mTrack;
     private TrackAdapter mTrackAdapter;
     private ServiceConnection mConnection;
+    private PlayContract.Presenter mPresenter;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -117,6 +122,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
+        initPresenter();
         bindMyService();
         initUI();
     }
@@ -185,6 +191,9 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.image_shuffle:
                 changeShuffleType();
+                break;
+            case R.id.image_favourite:
+                addToFavorites();
                 break;
             default:
                 break;
@@ -259,6 +268,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mDurationText = findViewById(R.id.text_duration);
         mShuffleImage = findViewById(R.id.image_shuffle);
         mLoopImage = findViewById(R.id.image_loop);
+        mImageFavourite = findViewById(R.id.image_favourite);
         setListener();
     }
 
@@ -272,6 +282,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mShuffleImage.setOnClickListener(this);
         mLoopImage.setOnClickListener(this);
         mSeekBar.setOnSeekBarChangeListener(this);
+        mImageFavourite.setOnClickListener(this);
     }
 
     private void bindMyService() {
@@ -346,6 +357,16 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onSwipeViewHolder(List<Track> tracks) {
         mService.setTracks(tracks);
+    }
+
+    @Override
+    public void onFail(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddTracksSuccess(List<String> id) {
+        Toast.makeText(this, R.string.text_add_success, Toast.LENGTH_SHORT).show();
     }
 
     private void initLoopImage() {
@@ -431,10 +452,11 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mSeekBar.setProgress(0);
         mCurrentPositionText.setText(TimeUtil.convertMilisecondToFormatTime(0));
         mDurationText.setText(TimeUtil.convertMilisecondToFormatTime(0));
-        Glide.with(this)
-                .load(track.getArtworkUrl())
-                .into(mImageArtwork);
-
+        if (!this.isDestroyed()) {
+            Glide.with(this)
+                    .load(track.getArtworkUrl())
+                    .into(mImageArtwork);
+        }
     }
 
     public void pause() {
@@ -535,5 +557,17 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         dialog.show();
         return false;
 
+    }
+
+    private void addToFavorites() {
+        mPresenter.addFavariteTrack(mTrack);
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(getApplicationContext())
+        );
+        mPresenter = new PlayPresenter(repository, this);
     }
 }
