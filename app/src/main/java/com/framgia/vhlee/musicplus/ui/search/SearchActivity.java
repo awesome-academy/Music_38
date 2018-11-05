@@ -19,6 +19,9 @@ import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
@@ -138,13 +141,21 @@ public class SearchActivity extends LoadMoreAbstract
         mRecyclerView = findViewById(R.id.recycler_search);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mTrackAdapter = new TrackAdapter(this);
-        mPresenter = new SearchPresenter(this);
+        initPresenter();
         mMiniPlayerClass = new MiniPlayerClass(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setAdapter(mTrackAdapter);
         mProgressBar.setVisibility(View.GONE);
         setListener();
         setLoadMore();
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(getApplicationContext())
+        );
+        mPresenter = new SearchPresenter(repository, this);
     }
 
     @Override

@@ -24,10 +24,14 @@ import android.widget.Toast;
 
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
+import com.framgia.vhlee.musicplus.ui.home.HomePresenter;
 
 import java.util.List;
 
@@ -62,6 +66,8 @@ public class MyMusicFragment extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_music, container, false);
         initUI(view);
+        Intent serviceIntent = MyService.getMyServiceIntent(getActivity());
+        getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
         checkPermission();
         if (mHasPermission) initData();
         return view;
@@ -86,9 +92,17 @@ public class MyMusicFragment extends Fragment
 
     private void setListener() {
         mMiniPlayer = new MiniPlayerClass(getActivity());
-        mPresenter = new MyMusicPresenter(this);
+        initPresenter();
         mHandler = new MusicHandler();
         mConnection = new MusicServiceConnection();
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(getContext())
+        );
+        mPresenter = new MyMusicPresenter(repository, this);
     }
 
     public void initData() {
@@ -119,7 +133,6 @@ public class MyMusicFragment extends Fragment
                     getActivity().startService(serviceIntent);
                 }
             }
-            getActivity().bindService(serviceIntent, mConnection, BIND_AUTO_CREATE);
         }
     }
 

@@ -125,4 +125,6 @@ public class Track implements Serializable {
     public void setOffline(boolean offline) {
         mIsOffline = offline;
     }
+
+
 }
