@@ -16,9 +16,6 @@ import java.util.Collections;
 public class FavoriteReaderDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "FeedReader.db";
-    private static final String CAN_NOT_ADD = "Can not add track to favorite";
-    private static final String NO_TRACK = "No track in favorities";
-    private String CAN_NOT_DELETE = "Can not delete track from favorite";
 
     private static final String LIKE_ARG = " LIKE ?";
     private static final String QUESTION_ARG = " = ?";
@@ -34,6 +31,11 @@ public class FavoriteReaderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + FavoriteReaderContract.FavoriteEntry.TABLE_NAME + OPEN_PARENTHESIS +
                     FavoriteReaderContract.FavoriteEntry._ID + INTEGER_TYPE + PRIMARY_KEY + COMMA +
                     FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID + TEXT_TYPE + COMMA +
+                    FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_ARTWORK_URL + TEXT_TYPE + COMMA +
+                    FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_USER_NAME + TEXT_TYPE + COMMA +
+                    FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA +
+                    FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_DOWNLOADABLE + TEXT_TYPE + COMMA +
+                    FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_DOWNLOAD_URL + TEXT_TYPE + COMMA +
                     FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_IS_OFFLINE + TEXT_TYPE +
                     CLOSE_PARENTHESIS;
 
@@ -108,22 +110,22 @@ public class FavoriteReaderDbHelper extends SQLiteOpenHelper {
                             FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
             String isOffline = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_IS_OFFLINE));
             String title = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TITLE));
             String artist = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_USER_NAME));
             String artworkUrl = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_ARTWORK_URL));
             String downloadable = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_DOWNLOADABLE));
             String downloadUrl = cursor.getString(
                     cursor.getColumnIndexOrThrow(
-                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_TRACK_ID));
+                            FavoriteReaderContract.FavoriteEntry.COLUMN_NAME_DOWNLOAD_URL));
             Track trackObject = new Track(Long.valueOf(id), title, artist);
             trackObject.setArtworkUrl(artworkUrl)
                     .setDownloadable(Boolean.valueOf(downloadable))
@@ -165,7 +167,6 @@ public class FavoriteReaderDbHelper extends SQLiteOpenHelper {
                 null,
                 null,
                 null);
-        sqLiteDatabase.close();
         return (cursor.getCount() <= 0);
     }
 }

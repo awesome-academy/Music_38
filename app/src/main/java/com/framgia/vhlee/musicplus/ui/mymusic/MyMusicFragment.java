@@ -31,7 +31,6 @@ import com.framgia.vhlee.musicplus.service.MediaRequest;
 import com.framgia.vhlee.musicplus.service.MyService;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
-import com.framgia.vhlee.musicplus.ui.home.HomePresenter;
 
 import java.util.List;
 

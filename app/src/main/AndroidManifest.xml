@@ -26,13 +26,12 @@
         <activity
             android:name=".ui.genres.GenresActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-        <service android:name=".service.MyService" />
-        <service android:name=".service.DownloadService" />
-
         <activity
             android:name=".ui.search.SearchActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".ui.favorite.FavoriteActivity" />
+
+        <service android:name=".service.MyService" />
+        <service android:name=".service.DownloadService" />
     </application>
 </manifest>

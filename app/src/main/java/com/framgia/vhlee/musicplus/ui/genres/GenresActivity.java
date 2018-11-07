@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import com.framgia.vhlee.musicplus.ui.LoadMoreAbstract;
 import com.framgia.vhlee.musicplus.ui.MiniPlayerClass;
 import com.framgia.vhlee.musicplus.ui.adapter.TrackAdapter;
 import com.framgia.vhlee.musicplus.ui.dialog.FeatureTrackDialog;
+import com.framgia.vhlee.musicplus.ui.favorite.FavoriteActivity;
 import com.framgia.vhlee.musicplus.ui.search.SearchActivity;
 import com.framgia.vhlee.musicplus.util.Constants;
 import com.framgia.vhlee.musicplus.util.StringUtil;
@@ -50,6 +52,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
     private String mGenreKey;
     private String mGenreApi;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private Button mFavoriteButton;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -178,6 +181,11 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.button_favorite) {
+            Intent intent = new Intent(GenresActivity.this, FavoriteActivity.class);
+            startActivity(intent);
+            return;
+        }
         mMiniPlayerClass.onClick(view);
     }
 
@@ -222,6 +230,8 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
         mMiniPlayerClass = new MiniPlayerClass(this);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mFavoriteButton = findViewById(R.id.button_favorite);
+        mFavoriteButton.setOnClickListener(this);
     }
 
     private void initPresenter() {
@@ -229,7 +239,7 @@ public class GenresActivity extends LoadMoreAbstract implements GenresContract.V
                 TrackRemoteDataSource.getsInstance(),
                 TrackLocalDataSource.getInstance(getApplicationContext())
         );
-        mPresenter = new GenresPresenter(repository,this);
+        mPresenter = new GenresPresenter(repository, this);
     }
 
     private void initToolbar() {

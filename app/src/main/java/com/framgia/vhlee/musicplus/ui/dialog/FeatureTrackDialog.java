@@ -13,8 +13,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.framgia.vhlee.musicplus.R;
 import com.framgia.vhlee.musicplus.data.model.Track;
+import com.framgia.vhlee.musicplus.data.repository.TrackRepository;
+import com.framgia.vhlee.musicplus.data.source.local.TrackLocalDataSource;
+import com.framgia.vhlee.musicplus.data.source.remote.TrackRemoteDataSource;
 
-public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClickListener {
+public class FeatureTrackDialog extends BottomSheetDialog
+        implements View.OnClickListener, FeatureTrackContract.View {
     private Context mContext;
     private View mFavoriteView;
     private View mPlaylistView;
@@ -23,11 +27,13 @@ public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClic
     private TextView mTrackName;
     private TextView mSingerName;
     private Track mTrack;
+    private FeatureTrackContract.Presenter mPresenter;
 
     public FeatureTrackDialog(@NonNull Context context, int themeResId, Track track) {
         super(context, themeResId);
         mContext = context;
         mTrack = track;
+        initPresenter();
     }
 
     @Override
@@ -88,7 +94,29 @@ public class FeatureTrackDialog extends BottomSheetDialog implements View.OnClic
     }
 
     private void addToFavorites() {
-        String favorites = mContext.getResources().getString(R.string.text_favorites);
-        Toast.makeText(mContext, favorites, Toast.LENGTH_SHORT).show();
+        mPresenter.addFavariteTrack(mTrack);
+    }
+
+    @Override
+    public void onFail() {
+        Toast.makeText(mContext, R.string.text_add_favorite_fail, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddTracksSuccess() {
+        Toast.makeText(mContext, R.string.text_add_success, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void existTrackInFavorites(String mesage) {
+        Toast.makeText(mContext, mesage, Toast.LENGTH_SHORT).show();
+    }
+
+    private void initPresenter() {
+        TrackRepository repository = TrackRepository.getInstance(
+                TrackRemoteDataSource.getsInstance(),
+                TrackLocalDataSource.getInstance(mContext)
+        );
+        mPresenter = new FeatureTrackPresenter(repository, this);
     }
 }
