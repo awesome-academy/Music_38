@@ -22,6 +22,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +62,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     private static final String ARTWORK_MAX_SIZE = "t500x500";
     private boolean mHasPermission;
     private MyService mService;
+    private ProgressBar mProgressWaiting;
     private TextView mCurrentPositionText;
     private ImageView mImageNow;
     private SeekBar mSeekBar;
@@ -262,6 +264,7 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
         mImageArtwork = findViewById(R.id.image_artwork);
         mImagePrevious = findViewById(R.id.image_previous);
         mImageNext = findViewById(R.id.image_next);
+        mProgressWaiting = findViewById(R.id.progress_play_waiting);
         mImagePlay = findViewById(R.id.image_play);
         mCurrentPositionText = findViewById(R.id.text_current_position);
         mSeekBar = findViewById(R.id.seekbar_track);
@@ -437,7 +440,8 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
     public void loadingSuccess() {
         mSeekBar.setEnabled(true);
         int duration = mService.getDuration();
-        mImagePlay.setVisibility(View.VISIBLE);
+        mProgressWaiting.setVisibility(View.GONE);
+        mImagePlay.setClickable(true);
         mImagePlay.setImageResource(R.drawable.ic_pause);
         mSeekBar.setMax(mService.getDuration());
         mDurationText.setText(TimeUtil.convertMilisecondToFormatTime(duration));
@@ -445,7 +449,8 @@ public class PlayActivity extends AppCompatActivity implements View.OnClickListe
 
     public void startLoading(int index) {
         mSeekBar.setEnabled(false);
-        mImagePlay.setVisibility(View.INVISIBLE);
+        mProgressWaiting.setVisibility(View.VISIBLE);
+        mImagePlay.setClickable(false);
         Track track = mService.getTracks().get(index);
         mTextArtist.setText(track.getArtist());
         mTextTitle.setText(track.getTitle());
